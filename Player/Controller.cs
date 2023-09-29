@@ -15,16 +15,12 @@ public class Controller : MonoBehaviour
 
     private bool jumpAvailable = true;
     private float lastGroundedAt = -1f; //essentially a timer for how long the player has been in the air
-    private float direction = 0f;
-    private bool flip = false;
 
     void Update(){
         //make jump available when the key is released
         if(Input.GetButtonUp("Jump")){
             jumpAvailable = true;
         }
-
-        playerRenderer.flipX = flip;  //if the player is facing to the left, flip the sprite on the x axis
     }
 
     void FixedUpdate()
@@ -33,6 +29,13 @@ public class Controller : MonoBehaviour
         if (!Npc.isTalking){
             Move();
         }
+
+        if(Input.GetAxisRaw("Horizontal") > 0f){
+            playerRenderer.flipX = false;
+        }
+        else if(Input.GetAxisRaw("Horizontal") < 0f){
+            playerRenderer.flipX = true;
+        }
     }
 
     private void Move() 
@@ -40,13 +43,7 @@ public class Controller : MonoBehaviour
         bool grounded = CheckIfGrounded();
 
         if (grounded || airControl){
-            float currDir = Input.GetAxisRaw("Horizontal");    //get a reference to the current direction the player is moving
-
-            flip = currDir * direction < 0f ? !flip : flip;  //if the directions have flipped (-1 * 0 = 0, -1 * -1 = 1, etc... but only -1 * 1 = -1)
-
-            direction = currDir;    //update the direction
-
-            playerRigid.velocity = new Vector2(maxMoveSpeed * direction, playerRigid.velocity.y);   //set the velocity of the player
+            playerRigid.velocity = new Vector2(maxMoveSpeed * Input.GetAxis("Horizontal"), playerRigid.velocity.y);   //set the velocity of the player
         }
 
         //set the last grounded time if the player is allowed to jump
