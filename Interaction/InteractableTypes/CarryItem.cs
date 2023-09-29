@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 
-public class CarryItem : IObject
+public class CarryItem : MonoBehaviour, IObject
 {
     private bool isBeingCarried = false;
 
     public GameObject player;
     public string instructions;
 
-    public override string Instructions 
+    public string Instructions 
     { 
         get 
         {
@@ -22,7 +22,7 @@ public class CarryItem : IObject
         } 
     }
 
-    public override void Do()
+    public void Do()
     {
         isBeingCarried = !isBeingCarried;
     }

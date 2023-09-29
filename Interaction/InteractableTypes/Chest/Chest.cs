@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chest : IObject
+public class Chest : MonoBehaviour, IObject
 {
     public ChestUI chestUI;
 
-    public override string Instructions { get => "Press E to Open"; }
+    public string Instructions { get => "Press E to Open"; }
 
-    public override void Do()
+    public void Do()
     {
         if(!chestUI.isShowing)
             chestUI.Open();

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class Npc : IObject
+public class Npc : MonoBehaviour, IObject
 {
     public Conversation defaultConversation;
     public Conversation[] conversations;
@@ -20,7 +20,7 @@ public class Npc : IObject
             c.isAvailable = c.availableAtStart;
     }
 
-    public override string Instructions
+    public string Instructions
     {
         get
         {
@@ -35,7 +35,7 @@ public class Npc : IObject
         }
     }
 
-    public override void Do()
+    public void Do()
     {
         if (isTalking)
         {
