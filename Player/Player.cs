@@ -7,8 +7,6 @@ public class Player : MonoBehaviour
     public float health;
     public float attackRange;
     public LayerMask whatIsEnemy;
-    public PlayerStats stats;
-
     private void Update()
     {
         if (Input.GetButtonDown("Attack"))
@@ -19,7 +17,7 @@ public class Player : MonoBehaviour
 
     private void Attack()
     {
-        DoDamage(stats.CalculateDamage());
+        DoDamage(1);
         //ApplyDebuffs
     }
 
@@ -35,8 +33,8 @@ public class Player : MonoBehaviour
 
     public void TakeDamage(float d)
     {
-        float s = stats.CalculateDefense();
-        health -= s > d ? d : (d - stats.CalculateDefense());
+        float s = 1;
+        health -= s > d ? d : (d - 1);
     }
 
     private void OnDrawGizmos()

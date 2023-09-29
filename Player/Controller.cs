@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
@@ -12,8 +13,15 @@ public class Controller : MonoBehaviour
     public BoxCollider2D playerCollider;
     public SpriteRenderer playerRenderer;
     public bool airControl;
+    [Range(25f, 50f)] public float dashSpeed;
+    [Range(0f, 10f)] public float dashCoolDown;
+    [Range(0f, 0.5f)] public float dashTime;  //the amount of time the dash lasts for
+    [Range(0f, 0.5f)] public float dashHangTime;    //the amount of time you hang in the air after a dash
+    public Color dashColor;
 
     private bool jumpAvailable = true;
+    private bool dashAvailable = true;
+    private bool isDashing = false;
     private float lastGroundedAt = -1f; //essentially a timer for how long the player has been in the air
 
     void Update(){
@@ -31,15 +39,19 @@ public class Controller : MonoBehaviour
         }
 
         if(Input.GetAxisRaw("Horizontal") > 0f){
-            playerRenderer.flipX = false;
+            transform.localScale = new Vector2(1, transform.localScale.y);
         }
         else if(Input.GetAxisRaw("Horizontal") < 0f){
-            playerRenderer.flipX = true;
+            transform.localScale = new Vector2(-1, transform.localScale.y);
         }
     }
 
     private void Move() 
     {
+        if(isDashing){
+            return;
+        }
+
         bool grounded = CheckIfGrounded();
 
         if (grounded || airControl){
@@ -61,6 +73,49 @@ public class Controller : MonoBehaviour
                 jumpAvailable = false;
             }
         }
+        else if(Input.GetButton("Dash") && dashAvailable){
+            StartCoroutine(Dash());
+        }
+    }
+
+    //Dash Ability
+    private IEnumerator Dash(){
+        //the player is now dashing
+        dashAvailable = false;
+        isDashing = true;
+
+        //change the player's gravity to 0
+        float playerGravity = playerRigid.gravityScale;
+        playerRigid.gravityScale = 0f;
+
+        //change the color of the player's sprite
+        Color playerColour = playerRenderer.color;
+        playerRenderer.color = dashColor;
+        
+        //apply the dash
+        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.5f);
+
+        //dash in progress
+        yield return new WaitForSeconds(dashTime);
+
+        //hang in the air for a moment
+        playerRigid.velocity = Vector2.zero;
+
+        yield return new WaitForSeconds(dashHangTime);
+
+        //return gravity to normal
+        playerRigid.gravityScale = playerGravity;
+        
+        //the player is no longer dashing
+        isDashing = false;
+        
+        //cooldown
+        yield return new WaitForSeconds(dashCoolDown);
+
+        //reset the color of the sprite
+        playerRenderer.color = playerColour;
+
+        dashAvailable = true;
     }
 
     private bool CheckIfGrounded()

@@ -1,6 +1,6 @@
 ﻿
 public interface IObject
 {
-    public abstract string Instructions { get; }
-    public abstract void Do();
+    public string Instructions { get; }
+    public void Do();
 }

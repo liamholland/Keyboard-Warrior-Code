@@ -66,4 +66,9 @@ public class CameraController : MonoBehaviour
         }
 
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireCube(transform.position, new Vector3(xDeadZone, yDeadZone, 0));
+    }
 }
