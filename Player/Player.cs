@@ -1,14 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
     public float health;
     public float attackRange;
     public LayerMask whatIsEnemy;
+    public GameObject keyBoard; //reference to the keyboard
+
     private void Update()
     {
+        //when the player attacks
         if (Input.GetButtonDown("Attack"))
         {
             Attack();
@@ -17,17 +21,15 @@ public class Player : MonoBehaviour
 
     private void Attack()
     {
-        DoDamage(1);
-        //ApplyDebuffs
-    }
-
-    public void DoDamage(float d)
-    {
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, attackRange, whatIsEnemy);
-        foreach(Collider2D collider in colliders)
-        {
-            BaseEnemy i = collider.gameObject.GetComponent<BaseEnemy>();
-            i.TakeDamage(!i.DetectPlayer() ? d*10 : d);
+        if(keyBoard.activeSelf){
+            //get an enemy collider
+            Collider2D collider = Physics2D.OverlapCircle(keyBoard.transform.position, attackRange, whatIsEnemy);
+            
+            //if there is a collider, do damage to it
+            if(collider != null){
+                Enemy i = collider.gameObject.GetComponent<Enemy>();
+                i.TakeDamage(1, 1);
+            }
         }
     }
 
@@ -39,6 +41,7 @@ public class Player : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
