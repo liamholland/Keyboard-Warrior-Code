@@ -27,7 +27,7 @@ public class CarryItem : IObject
         isBeingCarried = !isBeingCarried;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (isBeingCarried)
         {
