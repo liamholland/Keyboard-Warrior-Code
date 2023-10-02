@@ -5,10 +5,10 @@ using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
-    public float health;
-    public float attackRange;
     public LayerMask whatIsEnemy;
     public GameObject keyBoard; //reference to the keyboard
+    [SerializeField] private int health;
+    [SerializeField] private float attackRange;
 
     private void Update()
     {
@@ -33,10 +33,9 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float d)
+    public void TakeDamage(int damage)
     {
-        float s = 1;
-        health -= s > d ? d : (d - 1);
+        health -= damage;
     }
 
     private void OnDrawGizmos()

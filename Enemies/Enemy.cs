@@ -1,18 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
     public bool isHostile;  //is the enemy hostile
-    public int health;
     public Vector2[] patrolPoints;  //points the enemy will patrol on when it is not hostile
-    public float passiveMovespeed;
-    public float hostileMovespeed;
     public LayerMask whatIsPlayer;  //layermask to identify the player
-    [Range(0f, 0.5f)] public float damageFlashTime;   //amount of time the enemy flashes for damage
-    public Color damageFlashColor;  //the color that the enemy flashes when it takes damage
+
+    [SerializeField] private int health;
+    [SerializeField] private float passiveMovespeed;
+    [SerializeField] private float hostileMovespeed;
+    [Range(0f, 0.5f)] [SerializeField] private float damageFlashTime;   //amount of time the enemy flashes for damage
+    [SerializeField] private Color damageFlashColor;  //the color that the enemy flashes when it takes damage
+    [SerializeField] private float attackRange; //the range the enemy can attack from
+    [SerializeField] private float attackWindUpDuration;    //amount of time the enemy winds up their attack for
+    [SerializeField] private Color attackFlashColor;  //the color that the enemy flashes when it attacks
+    [SerializeField] private Color attackWindUpColor;  //the color that the enemy flashes when it is winding up an attack
 
 
     private Rigidbody2D enemyRigid;
@@ -21,6 +27,7 @@ public class Enemy : MonoBehaviour
     private GameObject player;
     private Vector2 currentTarget;
     private float currentMoveSpeed;
+    private bool isAttacking = false;
 
     // Start is called before the first frame update
     void Start()
@@ -33,26 +40,28 @@ public class Enemy : MonoBehaviour
     }
 
     void Update(){
-        if(currentTarget.x > transform.position.x){
-            transform.localScale = new Vector2(1, transform.localScale.y);
-        }
-        else{
-            transform.localScale = new Vector2(-1, transform.localScale.y);
-        }
+        PointTowardsTarget();
         
-        //move the enemy towards a target
-        transform.position = Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime);
+        if(!isAttacking){
+            //move the enemy towards a target
+            transform.position = Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime);
+        }
     }
 
     void FixedUpdate()
     {
         if (isHostile)
         {
-            //set the current move speed to hostileMoveSpeed
-            currentMoveSpeed = hostileMovespeed;
-
             //set the target to the player
             currentTarget = player.transform.position;
+
+            if(TargetWithinAttackRange(currentTarget) && !isAttacking){
+                StartCoroutine(Attack());
+            }
+            else if(!isAttacking){
+                //set the current move speed to hostileMoveSpeed
+                currentMoveSpeed = hostileMovespeed;
+            }
         }
         else
         {
@@ -78,15 +87,63 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    //the attack behaviour of the enemy
-    public void Attack()
-    {   
+    //point the enemy towards the target it is heading for
+    private void PointTowardsTarget(){
+        if(currentTarget.x > transform.position.x){
+            transform.localScale = new Vector2(1, transform.localScale.y);
+        }
+        else{
+            transform.localScale = new Vector2(-1, transform.localScale.y);
+        }
+    }
 
+    //the attack behaviour of the enemy
+    private IEnumerator Attack()
+    {   
+        //the enemy is attacking
+        isAttacking = true;
+
+        //stop the enemy
+        currentMoveSpeed = 0f;
+
+        Color enemyColor = enemyRenderer.color;
+
+        enemyRenderer.color = attackWindUpColor;
+
+        //wind up on the enemies attack
+        yield return new WaitForSeconds(attackWindUpDuration);
+
+        enemyRenderer.color = attackFlashColor;
+
+        //find all the player colliders in range of the enemy after the wind up
+        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, attackRange, whatIsPlayer);
+
+        //if any colliders were in range
+        if(colliderInRange != null){
+            colliderInRange.gameObject.GetComponent<Player>().TakeDamage(1);
+        }
+
+        yield return new WaitForSeconds(0.1f);
+
+        //reset the move speed to be hostile
+        currentMoveSpeed = hostileMovespeed;
+
+        enemyRenderer.color = enemyColor;
+
+        //the enemy is no longer attacking
+        isAttacking = false;
+
+        yield break;
+    }
+
+    //is the target within the attack range of the enemy
+    private bool TargetWithinAttackRange(Vector2 targetPosition){
+        return Vector2.Distance(transform.position, targetPosition) < attackRange;
     }
 
     //default implementation of a passive action
     //patrols around the patrol points
-    public IEnumerator Passive()
+    private IEnumerator Passive()
     {
         passiveMoveRoutineActive = true;
 
@@ -150,5 +207,8 @@ public class Enemy : MonoBehaviour
         foreach(Vector2 point in patrolPoints){
             Gizmos.DrawWireSphere(point, 0.4f);
         }
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

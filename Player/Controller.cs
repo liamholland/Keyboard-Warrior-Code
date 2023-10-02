@@ -3,21 +3,23 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
-    public float maxMoveSpeed;
-    public float jumpForce;
-    public float jumpHoldDuration;
-    public GameObject groundCheck;
-    public float GCRadius;
-    public LayerMask whatIsGround;
-    public Rigidbody2D playerRigid;
-    public BoxCollider2D playerCollider;
-    public SpriteRenderer playerRenderer;
     public bool airControl;
-    [Range(25f, 50f)] public float dashSpeed;
-    [Range(0f, 10f)] public float dashCoolDown;
-    [Range(0f, 0.5f)] public float dashTime;  //the amount of time the dash lasts for
-    [Range(0f, 0.5f)] public float dashHangTime;    //the amount of time you hang in the air after a dash
-    public Color dashColor;
+    public CameraController cameraController;
+    [SerializeField] private float maxMoveSpeed;
+    [SerializeField] private float jumpForce;
+    [SerializeField] private float jumpHoldDuration;
+    [SerializeField] private GameObject groundCheck;
+    [SerializeField] private float GCRadius;
+    [SerializeField] private LayerMask whatIsGround;
+    [SerializeField] private Rigidbody2D playerRigid;
+    [SerializeField] private BoxCollider2D playerCollider;
+    [SerializeField] private SpriteRenderer playerRenderer;
+    [Range(25f, 50f)] [SerializeField] private float dashSpeed;
+    [Range(0f, 10f)] [SerializeField] private float dashCoolDown;
+    [Range(0f, 0.5f)] [SerializeField] private float dashTime;  //the amount of time the dash lasts for
+    [Range(0f, 0.5f)] [SerializeField] private float dashHangTime;    //the amount of time you hang in the air after a dash
+    [SerializeField] private float dashCameraShake; //the amount the camera shakes on the x when the player dashs
+    [SerializeField] private Color dashColor;
 
     private bool jumpAvailable = true;
     private bool dashAvailable = true;

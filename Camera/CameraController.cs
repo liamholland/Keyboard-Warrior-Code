@@ -6,13 +6,15 @@ public class CameraController : MonoBehaviour
 {
     public GameObject player;
     public float cameraSpeed;
-    public float xCatchUpMultiplier;  //multiplier applied to cameraSpeed when player is outside the deadzone
     public float yOffset;   //the distance the camera is above the player
     [Range(0f, 10f)] public float xDeadZone;
     [Range(0f, 10f)] public float yDeadZone;
 
+    [SerializeField] private float xCatchUpMultiplier;  //multiplier applied to cameraSpeed when player is outside the deadzone
+
     private bool outOfBoundsX = false;
     private bool outOfBoundsY = false;
+    private bool isShaking = false;
 
     // Start is called before the first frame update
     void Start()
@@ -24,6 +26,12 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(!isShaking){
+            TrackPlayer();
+        }
+    }
+
+    private void TrackPlayer(){
         float desiredX = player.transform.position.x;
 
         float xDiff = Mathf.Abs(desiredX - transform.position.x);    //difference between the player and camera x position
@@ -64,7 +72,6 @@ public class CameraController : MonoBehaviour
                 outOfBoundsY = false;
             }
         }
-
     }
 
     private void OnDrawGizmos()
