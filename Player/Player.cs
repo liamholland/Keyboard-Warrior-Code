@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,6 +21,18 @@ public class Player : MonoBehaviour
         {
             Attack();
         }
+
+        //when the player performs a ranged attack / grapple
+        if(Input.GetButtonDown("Throw")){
+            ThrowKeyBoard();
+        }
+
+    }
+
+    //throw the keyboard towards the mouse
+    private void ThrowKeyBoard()
+    {
+        throw new NotImplementedException();
     }
 
     private void Attack()
@@ -40,6 +53,11 @@ public class Player : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
+        
+        //if the player loses all its health, kill the player
+        if(health <= 0){
+            Destroy(gameObject);
+        }
     }
 
     private void OnDrawGizmos()
