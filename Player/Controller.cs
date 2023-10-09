@@ -18,7 +18,9 @@ public class Controller : MonoBehaviour
     [Range(0f, 10f)] [SerializeField] private float dashCoolDown;
     [Range(0f, 0.5f)] [SerializeField] private float dashTime;  //the amount of time the dash lasts for
     [Range(0f, 0.5f)] [SerializeField] private float dashHangTime;    //the amount of time you hang in the air after a dash
-    [Range(0f, 3f)] [SerializeField] private float dashXMagnitude;  //the magnitude of the dash on the x axis
+    [Range(0f, 3f)] [SerializeField] private float dashXShakeMagnitude;  //the magnitude of the dash on the x axis
+    [SerializeField] [Range(0f, 0.1f)] private float dashShakeTime;    //the longest time the camera can shake for at once
+    [SerializeField] private float dashShakeSpeed;  //the speed of the camera when shaking during a dash
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
     [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
 
@@ -101,10 +103,10 @@ public class Controller : MonoBehaviour
         playerRenderer.color = dashColor;
         
         //apply the dash
-        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.5f);
+        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.8f);
 
         //shake the camera - applied only in the direction opposite to the direction of the dash
-        cameraController.ShakeCamera(new Vector2(transform.localScale.x * dashXMagnitude, Input.GetAxisRaw("Vertical")) * 0.8f, Vector2.zero);
+        StartCoroutine(cameraController.ShakeCamera(dashShakeSpeed, dashShakeTime, new Vector2(transform.localScale.x * dashXShakeMagnitude, Input.GetAxisRaw("Vertical")) * 0.4f, Vector2.zero));
 
         //dash in progress
         yield return new WaitForSeconds(dashTime);

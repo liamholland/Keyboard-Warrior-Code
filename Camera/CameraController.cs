@@ -5,7 +5,6 @@ public class CameraController : MonoBehaviour
 {
     public GameObject player;
     public float cameraSpeed;
-    public float shakeSpeed; //speed of the camera when shaking
     public float yOffset;   //the distance the camera is above the player
     [Range(0f, 10f)] public float xDeadZone;
     [Range(0f, 10f)] public float yDeadZone;
@@ -13,12 +12,12 @@ public class CameraController : MonoBehaviour
     [SerializeField] private bool ignoreDeadZone = false;  //should the camera use the deadzone
     [SerializeField] private float xCatchUpMultiplier;  //multiplier applied to cameraSpeed when player is outside the deadzone
     [SerializeField] private float yCatchUpMultiplier;  //multiplier applied to cameraSpeed when player is outside the deadzone
-    [SerializeField] [Range(0f, 0.1f)] private float shakeTime;    //the longest time the camera can shake for at once
-
     private bool outOfBoundsX = false;  //has the player gone beyond the the horizontal bounds
     private bool outOfBoundsY = false;  //has the target gone beyond the vertical bounds
+    private float smoothX = 0f, smoothY = 0f;
     private bool isShaking = false; //is the camera shaking
     private Vector2 target; //the target position that the camera tracks to
+    private float shakeSpeed; //speed of the camera when shaking
 
     // Start is called before the first frame update
     void Start()
@@ -65,17 +64,14 @@ public class CameraController : MonoBehaviour
             }
 
             //interpolate between the current x value and the desired x value quickly
-            float smoothX = Mathf.Lerp(transform.position.x, desiredX, speed * Time.deltaTime);
-
-            //set the position of the camera
-            transform.position = new Vector3(smoothX, transform.position.y, transform.position.z);
+            smoothX = Mathf.Lerp(transform.position.x, desiredX, speed * Time.deltaTime);
 
             if(Mathf.Abs(transform.position.x - desiredX) < 0.1f){
                 outOfBoundsX = false;
             }
         }
 
-        float desiredY = target.y;
+        float desiredY = target.y + (isShaking ? 0f : yOffset); //yOffset does not affect shaking
 
         float yDiff = Mathf.Abs(desiredY - transform.position.y);    //difference between the player and the camera y position
 
@@ -94,34 +90,32 @@ public class CameraController : MonoBehaviour
             }
 
             //interpolate between the current y position and the player's position
-            float smoothY = Mathf.Lerp(transform.position.y, desiredY, speed * Time.deltaTime);
-
-            //set the position of the camera
-            transform.position = new Vector3(transform.position.x, smoothY, transform.position.z);
+            smoothY = Mathf.Lerp(transform.position.y, desiredY, speed * Time.deltaTime);
 
             if(Mathf.Abs(transform.position.y - desiredY) < 0.1f){
                 outOfBoundsY = false;
             }
         }
+
+        //set the position of the camera
+        transform.position = new Vector3(smoothX, smoothY, transform.position.z);
     }
 
     /// <summary>
-    /// Attempts to apply a shake effect to the camera. The duration of the shake is controlled by the camera itself
+    /// Attempts to apply a shake effect to the camera
     /// </summary>
+    /// <param name="force">The speed of the camera when shaking</param>
+    /// <param name="duration">The amount of time the shake lasts for - Recommend less than 0.1f</param>
     /// <param name="negativeShake">The magnitude vector negatively applied to the current target of the camera - applied first</param>
     /// <param name="positiveShake">The magnitude vector positively applied to the current target of the camera - applied second</param>
-    /// <param name="startAfter">The length of time to wait before starting the shake effect</param>
-    public void ShakeCamera(Vector2 negativeShake, Vector2 positiveShake){
-        if(!isShaking){
-            StartCoroutine(CameraShake(negativeShake, positiveShake));   //start the coroutine
-        }
-    }
-
-    //a private coroutine that handles the shake effect
-    private IEnumerator CameraShake(Vector2 negativeShake, Vector2 positiveShake){
+    public IEnumerator ShakeCamera(float force, float duration, Vector2 negativeShake, Vector2 positiveShake){
+        if(isShaking) yield break;
+        
         isShaking = true;   //the camera is now shaking
 
         ignoreDeadZone = true;  //ignore the deadzone
+
+        shakeSpeed = force; //set the force of the camera shake - does not need to be reset after the shake is done
 
         Vector2 targetBeforeShake = target; //record the current target
 
@@ -133,7 +127,7 @@ public class CameraController : MonoBehaviour
 
         float elapsedTime = 0f;
 
-        while(elapsedTime < shakeTime){
+        while(elapsedTime < duration){
             target = firstShakePosition;    //set the target of the camera to the first position
 
             yield return new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.1f);
@@ -145,16 +139,16 @@ public class CameraController : MonoBehaviour
             elapsedTime += Time.fixedDeltaTime;
         }
 
-        ignoreDeadZone = false; //stop ignoring the deadzone
-
         isShaking = false;  //no longer shaking
 
         target = targetBeforeShake;
+
+        ignoreDeadZone = false; //stop ignoring the deadzone
 
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(transform.position, new Vector3(xDeadZone, yDeadZone, 0));
+        Gizmos.DrawWireCube(transform.position, new Vector2(xDeadZone, yDeadZone));
     }
 }

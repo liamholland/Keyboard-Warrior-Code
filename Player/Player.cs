@@ -10,6 +10,8 @@ public class Player : MonoBehaviour
     public CameraController cameraController;
     [SerializeField] private int health;
     [SerializeField] private float attackRange;
+    [Range(0f, 0.1f)] [SerializeField] private float attackShakeTime;
+    [SerializeField] private float attackShakeSpeed;
 
     private void Update()
     {
@@ -28,8 +30,8 @@ public class Player : MonoBehaviour
             
             //if there is a collider, do damage to it
             if(collider != null){
+                StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
                 Enemy i = collider.gameObject.GetComponent<Enemy>();
-                cameraController.ShakeCamera(Vector2.zero, new Vector2(transform.localScale.x * 0.5f, 0.1f));
                 i.TakeDamage(1, 1);
             }
         }
