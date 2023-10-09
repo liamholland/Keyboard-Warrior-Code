@@ -36,6 +36,11 @@ public class Player : MonoBehaviour
 
         if(keyboardThrown){
             keyboard.transform.position = Vector2.MoveTowards(keyboard.transform.position, keyboardTarget, keyboardThrowForce * Time.deltaTime);
+            
+            //if the keyboard has returned stop trying to return it
+            if(Vector2.Distance(keyboardStartPosition, keyboard.transform.position) < 0.05f){
+                keyboardThrown = false;
+            }
         }
     }
 
@@ -64,6 +69,15 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D other){
+        if(other.gameObject.layer == LayerMask.NameToLayer("Ground")){
+            //keyboard has hit the ground - stop the coroutine
+            StopCoroutine(ThrowKeyBoard());
+            
+            keyboardTarget = keyboardStartPosition; //reset keyboard target
+        }
+    }
+
     //coroutine for throwing the keyboard
     private IEnumerator ThrowKeyBoard(){
         keyboardTarget = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
@@ -73,31 +87,16 @@ public class Player : MonoBehaviour
         yield return new WaitUntil(() => Vector2.Distance(keyboard.transform.position, keyboardTarget) < 0.2f ||
             Vector2.Distance(transform.position, keyboard.transform.position) > keyboardThrowRange);
 
-        Collider2D grapplePoint = Physics2D.OverlapCircle(keyboard.transform.position, 0.1f, whatIsGrapplePoint);
+        Collider2D grapplePoint = Physics2D.OverlapCircle(keyboard.transform.position, 0.2f, whatIsGrapplePoint);
 
         if(grapplePoint == null){
             keyboardTarget = keyboardStartPosition;
-            
-            float keyboardForce = keyboardThrowForce;   //store the keyboard throw force
-
-            keyboardThrowForce *= 2;
-
-            yield return new WaitUntil(() => Vector2.Distance(keyboardStartPosition, keyboard.transform.position) < 0.05f);
-
-            keyboardThrowForce = keyboardForce; //return the force to its original
-
-            keyboardThrown = false;
         }
         else{
+            keyboardTarget = grapplePoint.gameObject.transform.position;    //move the keyboard to the actual point
+            
             //start the coroutine where the player will grapple to the point
             StartCoroutine(playerController.grappleToPoint(grapplePoint.gameObject.transform.position));
-
-            //wait until the player reaches the grapple point
-            yield return new WaitUntil(() => Vector2.Distance(keyboardStartPosition, keyboard.transform.position) < 0.5f);
-
-            keyboardTarget = keyboardStartPosition;
-
-            keyboardThrown = false; //the player has reached the keyboard
         }
     }
 
