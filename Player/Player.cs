@@ -11,7 +11,8 @@ public class Player : MonoBehaviour
     [SerializeField] private int health;
     [SerializeField] private float attackRange;
     [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
-    [Range(1f, 30f)] [SerializeField] private float keyboardThrowRange;
+    [Range(1f, 30f)] [SerializeField] private float keyboardGrappleRange;
+    [Range(1f, 30f)] [SerializeField] private float keyboardThrowAttackRange;
     [Range(0f, 0.1f)] [SerializeField] private float attackShakeTime;
     [SerializeField] private float attackShakeSpeed;
     [SerializeField] private LayerMask whatIsGrapplePoint;  //the layer that the keyboard can grapple to
@@ -22,14 +23,17 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        //when the player attacks
+        //keyboard actions
         if (Input.GetButtonDown("Attack") && !keyboardThrown)
         {
             Attack();
         }
         //when the player performs a ranged attack / grapple
-        else if(keyboard.activeSelf && Input.GetButtonDown("Throw") && !keyboardThrown){
+        else if(keyboard.activeSelf && Input.GetButtonDown("ThrowGrapple") && !keyboardThrown){
             StartCoroutine(ThrowKeyBoard());
+        }
+        else if(keyboard.activeSelf && Input.GetButtonDown("ThrowAttack") && !keyboardThrown){
+            StartCoroutine(RangeAttackWithKeyboard());
         }
         
         keyboardStartPosition = transform.position;
@@ -53,8 +57,8 @@ public class Player : MonoBehaviour
             //if there is a collider, do damage to it
             if(collider != null){
                 StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
-                Enemy i = collider.gameObject.GetComponent<Enemy>();
-                i.TakeDamage(1, 1);
+                Enemy e = collider.gameObject.GetComponent<Enemy>();
+                e.TakeDamage(1, 1);
             }
         }
     }
@@ -71,21 +75,35 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other){
         if(other.gameObject.layer == LayerMask.NameToLayer("Ground")){
-            //keyboard has hit the ground - stop the coroutine
-            StopCoroutine(ThrowKeyBoard());
+            //keyboard has hit the ground - stop coroutines
+            StopAllCoroutines();
             
             keyboardTarget = keyboardStartPosition; //reset keyboard target
         }
     }
 
-    //coroutine for throwing the keyboard
+    //coroutine for a long range attack with a keyboard
+    private IEnumerator RangeAttackWithKeyboard(){
+        keyboardTarget = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
+
+        keyboardThrown = true;  //the keyboard is thrown
+
+        yield return new WaitUntil(() => Vector2.Distance(keyboard.transform.position, keyboardTarget) < 0.2f ||
+            Vector2.Distance(transform.position, keyboard.transform.position) > keyboardThrowAttackRange);
+
+        Attack();   //attack when it reaches its destination
+
+        keyboardTarget = keyboardStartPosition;
+    }
+
+    //coroutine for throwing the keyboard as a grapple hook
     private IEnumerator ThrowKeyBoard(){
         keyboardTarget = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
 
         keyboardThrown = true;  //the keyboard is thrown
 
         yield return new WaitUntil(() => Vector2.Distance(keyboard.transform.position, keyboardTarget) < 0.2f ||
-            Vector2.Distance(transform.position, keyboard.transform.position) > keyboardThrowRange);
+            Vector2.Distance(transform.position, keyboard.transform.position) > keyboardGrappleRange);
 
         Collider2D grapplePoint = Physics2D.OverlapCircle(keyboard.transform.position, 0.2f, whatIsGrapplePoint);
 
@@ -106,6 +124,9 @@ public class Player : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, keyboardThrowRange);
+        Gizmos.DrawWireSphere(transform.position, keyboardGrappleRange);
+
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireSphere(transform.position, keyboardThrowAttackRange);
     }
 }
