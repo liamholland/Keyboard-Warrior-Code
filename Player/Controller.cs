@@ -18,7 +18,10 @@ public class Controller : MonoBehaviour
     [Range(0f, 10f)] [SerializeField] private float dashCoolDown;
     [Range(0f, 0.5f)] [SerializeField] private float dashTime;  //the amount of time the dash lasts for
     [Range(0f, 0.5f)] [SerializeField] private float dashHangTime;    //the amount of time you hang in the air after a dash
-    [SerializeField] private float dashCameraShake; //the amount the camera shakes on the x when the player dashs
+    [Range(0f, 3f)] [SerializeField] private float dashXMagnitude;  //the magnitude of the dash on the x axis
+    [SerializeField] private float deathZoneY;  //the y below which the player is dead
+    [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
+
     [SerializeField] private Color dashColor;
 
     private bool jumpAvailable = true;
@@ -35,8 +38,11 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate()
     {
-        //the player cannot move if they are talking to an npc
-        if (!Npc.isTalking){
+        //if the player fell off the map
+        if(transform.position.y < deathZoneY){
+            transform.position = new Vector2(0f, respawnZoneY);
+        }
+        else if (!Npc.isTalking){   //the player cannot move if they are talking to an npc
             Move();
         }
 
@@ -97,6 +103,9 @@ public class Controller : MonoBehaviour
         //apply the dash
         playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.5f);
 
+        //shake the camera - applied only in the direction opposite to the direction of the dash
+        cameraController.ShakeCamera(new Vector2(transform.localScale.x * dashXMagnitude, Input.GetAxisRaw("Vertical")) * 0.8f, Vector2.zero);
+
         //dash in progress
         yield return new WaitForSeconds(dashTime);
 
@@ -124,5 +133,13 @@ public class Controller : MonoBehaviour
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.transform.position, GCRadius, whatIsGround);
         return colliders.Length > 0;
+    }
+
+    void OnDrawGizmos() {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(new Vector2(0f, respawnZoneY), 2f);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(new Vector2(0f, deathZoneY), 2f);
     }
 }

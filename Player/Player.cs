@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 {
     public LayerMask whatIsEnemy;
     public GameObject keyBoard; //reference to the keyboard
+    public CameraController cameraController;
     [SerializeField] private int health;
     [SerializeField] private float attackRange;
 
@@ -28,6 +29,7 @@ public class Player : MonoBehaviour
             //if there is a collider, do damage to it
             if(collider != null){
                 Enemy i = collider.gameObject.GetComponent<Enemy>();
+                cameraController.ShakeCamera(Vector2.zero, new Vector2(transform.localScale.x * 0.5f, 0.1f));
                 i.TakeDamage(1, 1);
             }
         }
