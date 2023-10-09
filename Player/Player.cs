@@ -1,45 +1,49 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
     public LayerMask whatIsEnemy;
-    public GameObject keyBoard; //reference to the keyboard
+    public GameObject keyboard; //reference to the keyboard
     public CameraController cameraController;
     [SerializeField] private int health;
     [SerializeField] private float attackRange;
+    [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
+    [Range(1f, 30f)] [SerializeField] private float keyboardThrowRange;
     [Range(0f, 0.1f)] [SerializeField] private float attackShakeTime;
     [SerializeField] private float attackShakeSpeed;
+    [SerializeField] private LayerMask whatIsGrapplePoint;  //the layer that the keyboard can grapple to
+
+    private bool keyboardThrown = false;    //has the keyboard been thrown
+    private Vector2 keyboardTarget; //the target for the keyboard to move towards
+    private Vector2 keyboardStartPosition;  //the position the keyboard is at relative to the player object
 
     private void Update()
     {
         //when the player attacks
-        if (Input.GetButtonDown("Attack"))
+        if (Input.GetButtonDown("Attack") && !keyboardThrown)
         {
             Attack();
         }
-
         //when the player performs a ranged attack / grapple
-        if(Input.GetButtonDown("Throw")){
-            ThrowKeyBoard();
+        else if(keyboard.activeSelf && Input.GetButtonDown("Throw") && !keyboardThrown){
+            StartCoroutine(ThrowKeyBoard());
+        }
+        else if(!keyboardThrown){
+            keyboardStartPosition = keyboard.transform.position;
         }
 
-    }
-
-    //throw the keyboard towards the mouse
-    private void ThrowKeyBoard()
-    {
-        throw new NotImplementedException();
+        if(keyboardThrown){
+            keyboard.transform.position = Vector2.MoveTowards(keyboard.transform.position, keyboardTarget, keyboardThrowForce * Time.deltaTime);
+        }
     }
 
     private void Attack()
     {
-        if(keyBoard.activeSelf){
+        if(keyboard.activeSelf){
             //get an enemy collider
-            Collider2D collider = Physics2D.OverlapCircle(keyBoard.transform.position, attackRange, whatIsEnemy);
+            Collider2D collider = Physics2D.OverlapCircle(keyboard.transform.position, attackRange, whatIsEnemy);
             
             //if there is a collider, do damage to it
             if(collider != null){
@@ -60,9 +64,38 @@ public class Player : MonoBehaviour
         }
     }
 
+    //coroutine for throwing the keyboard
+    private IEnumerator ThrowKeyBoard(){
+        keyboardTarget = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
+
+        keyboardThrown = true;  //the keyboard is thrown
+
+        yield return new WaitUntil(() => Vector2.Distance(keyboard.transform.position, keyboardTarget) < 0.2f ||
+            Vector2.Distance(transform.position, keyboard.transform.position) > keyboardThrowRange);
+
+        Collider2D grapplePoint = Physics2D.OverlapCircle(keyboard.transform.position, 0.1f, whatIsGrapplePoint);
+
+        if(grapplePoint == null){
+            keyboardTarget = keyboardStartPosition;
+            
+            float keyboardForce = keyboardThrowForce;   //store the keyboard throw force
+
+            keyboardThrowForce *= 2;
+
+            yield return new WaitUntil(() => Vector2.Distance(keyboardStartPosition, keyboard.transform.position) < 0.05f);
+
+            keyboardThrowForce = keyboardForce; //return the force to its original
+
+            keyboardThrown = false;
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, keyboardThrowRange);
     }
 }
