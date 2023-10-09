@@ -21,15 +21,19 @@ public class Controller : MonoBehaviour
     [Range(0f, 3f)] [SerializeField] private float dashXShakeMagnitude;  //the magnitude of the dash on the x axis
     [SerializeField] [Range(0f, 0.1f)] private float dashShakeTime;    //the longest time the camera can shake for at once
     [SerializeField] private float dashShakeSpeed;  //the speed of the camera when shaking during a dash
+    [SerializeField] private Color dashColor;
+    [Range(20f, 50f)] [SerializeField] private float grappleSpeed;  //the speed at which the player grapples towards a point
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
     [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
 
-    [SerializeField] private Color dashColor;
 
     private bool jumpAvailable = true;
     private bool dashAvailable = true;
     private bool isDashing = false;
     private float lastGroundedAt = -1f; //essentially a timer for how long the player has been in the air
+    private bool atGrapplePoint = false;    //is the player hooked to a grapple point
+    private bool isGrappling = false;   //is the player currently grappling
+    private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
 
     void Update(){
         //make jump available when the key is released
@@ -58,18 +62,18 @@ public class Controller : MonoBehaviour
 
     private void Move() 
     {
-        if(isDashing){
+        if(isDashing || isGrappling){
             return;
         }
 
         bool grounded = CheckIfGrounded();
 
-        if (grounded || airControl){
+        if ((grounded || airControl) && !atGrapplePoint){
             playerRigid.velocity = new Vector2(maxMoveSpeed * Input.GetAxis("Horizontal"), playerRigid.velocity.y);   //set the velocity of the player
         }
 
         //set the last grounded time if the player is allowed to jump
-        if(grounded && jumpAvailable){
+        if((grounded || atGrapplePoint) && jumpAvailable){
             lastGroundedAt = Time.time;
         }
 
@@ -94,16 +98,19 @@ public class Controller : MonoBehaviour
         dashAvailable = false;
         isDashing = true;
 
-        //change the player's gravity to 0
-        float playerGravity = playerRigid.gravityScale;
-        playerRigid.gravityScale = 0f;
+        //change the player's gravity to 0 if not at a grapple point
+        if(!atGrapplePoint){
+            playerGravity = playerRigid.gravityScale;
+            playerRigid.gravityScale = 0f;
+        }
+        
 
         //change the color of the player's sprite
         Color playerColour = playerRenderer.color;
         playerRenderer.color = dashColor;
         
         //apply the dash
-        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.8f);
+        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.6f);
 
         //shake the camera - applied only in the direction opposite to the direction of the dash
         StartCoroutine(cameraController.ShakeCamera(dashShakeSpeed, dashShakeTime, new Vector2(transform.localScale.x * dashXShakeMagnitude, Input.GetAxisRaw("Vertical")) * 0.4f, Vector2.zero));
@@ -129,6 +136,38 @@ public class Controller : MonoBehaviour
         playerRenderer.color = playerColour;
 
         dashAvailable = true;
+    }
+
+    //grapple ability
+    public IEnumerator grappleToPoint(Vector2 grapplePoint){        
+        isGrappling = true; //the player is now grappling
+
+        //save the gravity scale of the player
+        float playerGravity = playerRigid.gravityScale;
+
+        //remove gravity on the player
+        playerRigid.gravityScale = 0f;
+
+        //grapple to the point
+        playerRigid.velocity = new Vector2(grapplePoint.x - transform.position.x, grapplePoint.y - transform.position.y).normalized * grappleSpeed;
+
+        //wait until the player reaches the grapple point
+        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) < 0.1f);
+
+        //set the velocity to 0
+        playerRigid.velocity = Vector2.zero;
+
+        isGrappling = false;    //player no longer grappling
+
+        atGrapplePoint = true;  //player is at a grapple point
+
+        //wait until the player is moving away from the grapple point
+        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) > 1f);
+
+        //return gravity to the player
+        playerRigid.gravityScale = playerGravity;
+
+        atGrapplePoint = false; //player is no longer at the grapple point
     }
 
     private bool CheckIfGrounded()

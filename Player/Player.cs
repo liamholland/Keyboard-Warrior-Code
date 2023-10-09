@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     public LayerMask whatIsEnemy;
     public GameObject keyboard; //reference to the keyboard
     public CameraController cameraController;
+    public Controller playerController; //reference to the player controller
     [SerializeField] private int health;
     [SerializeField] private float attackRange;
     [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
@@ -30,9 +31,8 @@ public class Player : MonoBehaviour
         else if(keyboard.activeSelf && Input.GetButtonDown("Throw") && !keyboardThrown){
             StartCoroutine(ThrowKeyBoard());
         }
-        else if(!keyboardThrown){
-            keyboardStartPosition = keyboard.transform.position;
-        }
+        
+        keyboardStartPosition = transform.position;
 
         if(keyboardThrown){
             keyboard.transform.position = Vector2.MoveTowards(keyboard.transform.position, keyboardTarget, keyboardThrowForce * Time.deltaTime);
@@ -87,6 +87,17 @@ public class Player : MonoBehaviour
             keyboardThrowForce = keyboardForce; //return the force to its original
 
             keyboardThrown = false;
+        }
+        else{
+            //start the coroutine where the player will grapple to the point
+            StartCoroutine(playerController.grappleToPoint(grapplePoint.gameObject.transform.position));
+
+            //wait until the player reaches the grapple point
+            yield return new WaitUntil(() => Vector2.Distance(keyboardStartPosition, keyboard.transform.position) < 0.5f);
+
+            keyboardTarget = keyboardStartPosition;
+
+            keyboardThrown = false; //the player has reached the keyboard
         }
     }
 
