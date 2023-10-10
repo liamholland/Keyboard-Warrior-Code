@@ -117,7 +117,7 @@ public class Enemy : MonoBehaviour
 
         //if any colliders were in range
         if(colliderInRange != null){
-            colliderInRange.gameObject.GetComponent<Player>().TakeDamage(1);
+            colliderInRange.gameObject.GetComponent<Controller>().TakeDamage(1);
         }
 
         yield return new WaitForSeconds(0.1f);

@@ -4,6 +4,10 @@ using UnityEngine;
 public class Controller : MonoBehaviour
 {
     public bool airControl;
+    public GameObject keyboard;
+    public LayerMask whatIsEnemy;
+
+
     [SerializeField] private float maxMoveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float jumpHoldDuration;
@@ -19,15 +23,22 @@ public class Controller : MonoBehaviour
     [Range(0f, 0.5f)] [SerializeField] private float verticalDashLimit; //limit applied to vertical dash so they don't feel way longer than a normal dash
     [Range(0f, 0.5f)] [SerializeField] private float dashHangTime;    //the amount of time you hang in the air after a dash
     [Range(0f, 3f)] [SerializeField] private float dashXShakeMagnitude;  //the magnitude of the dash on the x axis
-    [SerializeField] [Range(0f, 0.1f)] private float dashShakeTime;    //the longest time the camera can shake for at once
+    [Range(0f, 0.1f)] [SerializeField] private float dashShakeTime;    //the longest time the camera can shake for at once
+    [Range(0f, 0.1f)] [SerializeField] private float attackShakeTime;
+    [SerializeField] private float attackShakeSpeed;
     [SerializeField] private float dashShakeSpeed;  //the speed of the camera when shaking during a dash
     [SerializeField] private Color dashColor;
     [Range(20f, 50f)] [SerializeField] private float grappleSpeed;  //the speed at which the player grapples towards a point
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
     [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
+    [SerializeField] private float attackRange;
+    [SerializeField] private int health;
 
 
-    private CameraController cameraController;
+
+
+    private KeyboardController keyboardController; //reference to the keyboard controller
+    private CameraController cameraController;  //reference to the camera controller
     private bool jumpAvailable = true;
     private bool dashAvailable = true;
     private bool isDashing = false;
@@ -35,10 +46,14 @@ public class Controller : MonoBehaviour
     private bool atGrapplePoint = false;    //is the player hooked to a grapple point
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
+    private bool keyboardThrown = false;    //has the keyboard been thrown
 
     private void Awake(){
         //get a reference to the camera controller
         cameraController = Camera.main.GetComponent<CameraController>();
+
+        //get a reference to the keyboard controller
+        keyboardController = keyboard.GetComponent<KeyboardController>();
     }
 
     void Update(){
@@ -46,6 +61,30 @@ public class Controller : MonoBehaviour
         if(Input.GetButtonUp("Jump")){
             jumpAvailable = true;
         }
+
+        //flip the player sprite to face the correct direction
+        if(Input.GetAxisRaw("Horizontal") != 0f){
+            transform.localScale = new Vector2(Input.GetAxisRaw("Horizontal"), transform.localScale.y); //flip the player
+        }
+
+        //keyboard actions
+        keyboardThrown = keyboardController.IsThrown;   //is the keyboard thrown
+
+        //keyboard actions
+        if (Input.GetButtonDown("Attack") && !keyboardThrown)
+        {
+            Attack();
+        }
+        //when the player performs a ranged attack / grapple
+        else if(keyboard.activeSelf && Input.GetButtonDown("ThrowGrapple") && !keyboardThrown){
+            StartCoroutine(keyboardController.ThrowKeyBoard());
+        }
+        else if(keyboard.activeSelf && Input.GetButtonDown("ThrowAttack") && !keyboardThrown){
+            StartCoroutine(keyboardController.RangeAttackWithKeyboard());
+        }
+
+        //for now, the start position is just the player's position
+        keyboardController.startPosition = transform.position;
     }
 
     void FixedUpdate()
@@ -88,6 +127,33 @@ public class Controller : MonoBehaviour
         }
         else if(Input.GetButton("Dash") && dashAvailable){
             StartCoroutine(Dash());
+        }
+    }
+
+    //what the player does when they attack
+    public void Attack()
+    {
+        if(keyboard.activeSelf){
+            //get an enemy collider
+            Collider2D collider = Physics2D.OverlapCircle(keyboard.transform.position, attackRange, whatIsEnemy);
+            
+            //if there is a collider, do damage to it
+            if(collider != null){
+                StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
+                Enemy e = collider.gameObject.GetComponent<Enemy>();
+                e.TakeDamage(1, 1);
+            }
+        }
+    }
+
+    //what to do when the player takes damage
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        
+        //if the player loses all its health, kill the player
+        if(health <= 0){
+            Destroy(gameObject);
         }
     }
 
@@ -183,5 +249,8 @@ public class Controller : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(new Vector2(0f, deathZoneY), 2f);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
