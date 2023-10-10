@@ -6,7 +6,6 @@ public class MainMenu : Menu
 {
     public CanvasGroup mainMenu;
     public Inventory inventory;
-    public CharachterScreen charachterScreen;
 
     private bool isShowing;
 
@@ -65,6 +64,5 @@ public class MainMenu : Menu
     public void CharachterScreenButton()
     {
         Close();
-        charachterScreen.Open();
     }
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 public class Controller : MonoBehaviour
 {
     public bool airControl;
-    public CameraController cameraController;
     [SerializeField] private float maxMoveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float jumpHoldDuration;
@@ -17,6 +16,7 @@ public class Controller : MonoBehaviour
     [Range(25f, 50f)] [SerializeField] private float dashSpeed;
     [Range(0f, 10f)] [SerializeField] private float dashCoolDown;
     [Range(0f, 0.5f)] [SerializeField] private float dashTime;  //the amount of time the dash lasts for
+    [Range(0f, 0.5f)] [SerializeField] private float verticalDashLimit; //limit applied to vertical dash so they don't feel way longer than a normal dash
     [Range(0f, 0.5f)] [SerializeField] private float dashHangTime;    //the amount of time you hang in the air after a dash
     [Range(0f, 3f)] [SerializeField] private float dashXShakeMagnitude;  //the magnitude of the dash on the x axis
     [SerializeField] [Range(0f, 0.1f)] private float dashShakeTime;    //the longest time the camera can shake for at once
@@ -27,6 +27,7 @@ public class Controller : MonoBehaviour
     [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
 
 
+    private CameraController cameraController;
     private bool jumpAvailable = true;
     private bool dashAvailable = true;
     private bool isDashing = false;
@@ -34,6 +35,11 @@ public class Controller : MonoBehaviour
     private bool atGrapplePoint = false;    //is the player hooked to a grapple point
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
+
+    private void Awake(){
+        //get a reference to the camera controller
+        cameraController = Camera.main.GetComponent<CameraController>();
+    }
 
     void Update(){
         //make jump available when the key is released
@@ -50,13 +56,6 @@ public class Controller : MonoBehaviour
         }
         else if (!Npc.isTalking){   //the player cannot move if they are talking to an npc
             Move();
-        }
-
-        if(Input.GetAxisRaw("Horizontal") > 0f){
-            transform.localScale = new Vector2(1, transform.localScale.y);
-        }
-        else if(Input.GetAxisRaw("Horizontal") < 0f){
-            transform.localScale = new Vector2(-1, transform.localScale.y);
         }
     }
 
@@ -103,20 +102,19 @@ public class Controller : MonoBehaviour
             playerGravity = playerRigid.gravityScale;
             playerRigid.gravityScale = 0f;
         }
-        
 
         //change the color of the player's sprite
         Color playerColour = playerRenderer.color;
         playerRenderer.color = dashColor;
         
         //apply the dash
-        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical") * 0.6f);
+        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical"));
 
         //shake the camera - applied only in the direction opposite to the direction of the dash
         StartCoroutine(cameraController.ShakeCamera(dashShakeSpeed, dashShakeTime, new Vector2(transform.localScale.x * dashXShakeMagnitude, Input.GetAxisRaw("Vertical")) * 0.4f, Vector2.zero));
 
         //dash in progress
-        yield return new WaitForSeconds(dashTime);
+        yield return new WaitForSeconds(Input.GetAxisRaw("Vertical") > 0f ? dashTime - verticalDashLimit : dashTime);
 
         //hang in the air for a moment
         playerRigid.velocity = Vector2.zero;
@@ -140,6 +138,9 @@ public class Controller : MonoBehaviour
 
     //grapple ability
     public IEnumerator grappleToPoint(Vector2 grapplePoint){        
+        //wait to finish the dash coroutine before starting the grapple one
+        if(isDashing) yield return new WaitUntil(() => !isDashing);
+        
         isGrappling = true; //the player is now grappling
 
         //save the gravity scale of the player

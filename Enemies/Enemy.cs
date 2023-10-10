@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour
     public bool isHostile;  //is the enemy hostile
     public Vector2[] patrolPoints;  //points the enemy will patrol on when it is not hostile
     public LayerMask whatIsPlayer;  //layermask to identify the player
+    public GameObject player;   //what is the player
 
     [SerializeField] private int health;
     [SerializeField] private float passiveMovespeed;
@@ -22,7 +23,6 @@ public class Enemy : MonoBehaviour
     private Rigidbody2D enemyRigid;
     private SpriteRenderer enemyRenderer;
     private bool passiveMoveRoutineActive = false;
-    private GameObject player;
     private Vector2 currentTarget;
     private float currentMoveSpeed;
     private bool isAttacking = false;
@@ -75,13 +75,12 @@ public class Enemy : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other){
-        if(other.gameObject.layer == LayerMask.NameToLayer("Player")){
+        if(other.gameObject.layer == LayerMask.NameToLayer("Player") ||
+            other.gameObject.layer == LayerMask.NameToLayer("keyboard")){
             //stop the passive coroutine
             StopCoroutine(Passive());
             
             isHostile = true;   //the enemy is hostile
-
-            player = other.gameObject;  //set the reference to the player
         }
     }
 
