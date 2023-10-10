@@ -51,6 +51,13 @@ public class Controller : MonoBehaviour
         else if (!Npc.isTalking){   //the player cannot move if they are talking to an npc
             Move();
         }
+
+        if(Input.GetAxisRaw("Horizontal") > 0f){
+            transform.localScale = new Vector2(1, transform.localScale.y);
+        }
+        else if(Input.GetAxisRaw("Horizontal") < 0f){
+            transform.localScale = new Vector2(-1, transform.localScale.y);
+        }
     }
 
     private void Move() 

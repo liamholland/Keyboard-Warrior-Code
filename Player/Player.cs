@@ -46,13 +46,6 @@ public class Player : MonoBehaviour
                 keyboardThrown = false;
             }
         }
-
-        if(Input.GetAxisRaw("Horizontal") > 0f){
-            transform.localScale = new Vector2(1, transform.localScale.y);
-        }
-        else if(Input.GetAxisRaw("Horizontal") < 0f){
-            transform.localScale = new Vector2(-1, transform.localScale.y);
-        }
     }
 
     private void Attack()
