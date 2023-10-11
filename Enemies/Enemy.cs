@@ -21,6 +21,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private Color attackWindUpColor;  //the color that the enemy flashes when it is winding up an attack
     [SerializeField] private float pathScanningInterval;    //the amount the enemy scans will move left and right when it detects a collision#
     [SerializeField] [Range(0.5f, 2f)] private float maxPathFindingTime;  //the upper limit on the amount of time that can be spent pathfinding
+    [SerializeField] private float spaceForEnemy;   //the size of a space the pathfinding needs to look for
 
 
     private Rigidbody2D enemyRigid;
@@ -54,9 +55,9 @@ public class Enemy : MonoBehaviour
         if (isHostile)
         {
             //set the target to the player
-            currentTarget = player.transform.position;
+            currentTarget = FindPath(player.transform.position);
 
-            if(TargetWithinAttackRange(currentTarget) && !isAttacking){
+            if(TargetWithinAttackRange(player.transform.position) && !isAttacking){
                 StartCoroutine(Attack());
             }
             else if(!isAttacking){
@@ -120,12 +121,12 @@ public class Enemy : MonoBehaviour
 
             //if there is a space, check that there is enough space for the enemy, if so return the point
             if(leftScan.collider == null){
-                Collider2D groundNearHit = Physics2D.OverlapCircle(leftPoint, 1f, whatIsObstacle);
+                Collider2D groundNearHit = Physics2D.OverlapCircle(leftPoint, spaceForEnemy, whatIsObstacle);
 
                 if(groundNearHit == null) return leftPoint;
             }
             else if(rightScan.collider == null){
-                Collider2D groundNearHit = Physics2D.OverlapCircle(rightPoint, 1f, whatIsObstacle);
+                Collider2D groundNearHit = Physics2D.OverlapCircle(rightPoint, spaceForEnemy, whatIsObstacle);
 
                 if(groundNearHit == null) return rightPoint;
             }
@@ -260,7 +261,7 @@ public class Enemy : MonoBehaviour
             Gizmos.DrawWireSphere(point, 0.4f);
         }
 
-        Gizmos.color = Color.green;
+        Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, currentTarget);
 
         Gizmos.color = Color.magenta;

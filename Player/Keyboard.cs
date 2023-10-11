@@ -5,17 +5,42 @@ using UnityEngine;
 public class KeyboardController : MonoBehaviour
 {
     public GameObject player;   //reference to the player
+
+    [Header("-- Unlocks --")]
+    [SerializeField] private bool available = false;   //has the keyboard been unlocked at all
+    public bool longCableUnlocked = false;  //the longer cable allows you to throw the keyboard to use it as a grapple and a long range weapon
+    
+    //public accessor for available
+    [HideInInspector]
+    public bool KeyboardAvailable{
+        get => available;
+        set {
+            available = value;
+            //enable or disable the keyboard
+            if(value == false){
+                keyboardRenderer.enabled = false;
+                keyboardCollider.enabled = false;
+            }
+            else if(value == true){
+                keyboardRenderer.enabled = true;
+                keyboardCollider.enabled = true;
+            }
+        }
+    }
+
+    [Header("-- Throwing --")]
     public LayerMask whatIsGrapplePoint;    //reference to the grapple point layer
+    [Range(1f, 30f)] [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
+    [Range(1f, 30f)] [SerializeField] private float keyboardGrappleRange;
+    [Range(1f, 30f)] [SerializeField] private float keyboardThrowAttackRange;
     
     [HideInInspector] public Vector2 startPosition;  //the position the keyboard started from
     [HideInInspector] public bool IsHooked { get => hooked; } //is the keyboard hooked - read only
     [HideInInspector] public bool IsThrown { get => thrown; }   //is the keyboard thrown - read only
-
-    [Range(1f, 30f)] [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
-    [Range(1f, 30f)] [SerializeField] private float keyboardThrowAttackRange;
-    [Range(1f, 30f)] [SerializeField] private float keyboardGrappleRange;
     
     private Controller playerController;    //reference to the player controller
+    private SpriteRenderer keyboardRenderer;    //reference to the keyboard's renderer
+    private BoxCollider2D keyboardCollider; //reference to the keyboard's collider
     private Vector2 target; //the target position the keyboard is heading for
     private bool thrown = false;    //has the keyboard been thrown
     private bool hooked = false;    //has the keyboard been hooked to a grapple point
@@ -23,6 +48,16 @@ public class KeyboardController : MonoBehaviour
     private void Awake(){
         //get a reference to the player controller
         playerController = player.GetComponent<Controller>();
+
+        //get the renderer reference
+        keyboardRenderer = gameObject.GetComponent<SpriteRenderer>();
+        keyboardRenderer.enabled = available;
+
+        //get a reference to the collider
+        keyboardCollider = gameObject.GetComponent<BoxCollider2D>();
+        keyboardCollider.enabled = available;
+
+        KeyboardAvailable = available;  //can set the availability of the keyboard based on the inspector value at the start of the game
     }
 
     private void Update(){

@@ -35,7 +35,7 @@ public class Controller : MonoBehaviour
 
 
     [Header("-- Other --")]
-    public GameObject keyboard;
+    public KeyboardController keyboardController; //reference to the keyboard controller
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
     [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
 
@@ -44,7 +44,6 @@ public class Controller : MonoBehaviour
 
     private SpriteRenderer playerRenderer;
     private Rigidbody2D playerRigid;
-    private KeyboardController keyboardController; //reference to the keyboard controller
     private CameraController cameraController;  //reference to the camera controller
     private bool jumpAvailable = true;
     private bool dashAvailable = true;
@@ -53,14 +52,10 @@ public class Controller : MonoBehaviour
     private bool atGrapplePoint = false;    //is the player hooked to a grapple point
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
-    private bool keyboardThrown = false;    //has the keyboard been thrown
 
     private void Awake(){
         //get a reference to the camera controller
         cameraController = Camera.main.GetComponent<CameraController>();
-
-        //get a reference to the keyboard controller
-        keyboardController = keyboard.GetComponent<KeyboardController>();
 
         //get a reference to the renderer
         playerRenderer = GetComponent<SpriteRenderer>();
@@ -81,18 +76,16 @@ public class Controller : MonoBehaviour
         }
 
         //keyboard actions
-        keyboardThrown = keyboardController.IsThrown;   //is the keyboard thrown
 
-        //keyboard actions
-        if (Input.GetButtonDown("Attack") && !keyboardThrown)
-        {
+        //if the player is attacking, the keyboard is not thrown and the keyboard is unlocked
+        if (Input.GetButtonDown("Attack") && !keyboardController.IsThrown && keyboardController.KeyboardAvailable){
             Attack();
         }
         //when the player performs a ranged attack / grapple
-        else if(keyboard.activeSelf && Input.GetButtonDown("ThrowGrapple") && !keyboardThrown){
+        else if(Input.GetButtonDown("ThrowGrapple") && !keyboardController.IsThrown && keyboardController.longCableUnlocked){
             StartCoroutine(keyboardController.ThrowKeyBoard());
         }
-        else if(keyboard.activeSelf && Input.GetButtonDown("ThrowAttack") && !keyboardThrown){
+        else if(Input.GetButtonDown("ThrowAttack") && !keyboardController.IsThrown && keyboardController.longCableUnlocked){
             StartCoroutine(keyboardController.RangeAttackWithKeyboard());
         }
 
@@ -146,16 +139,14 @@ public class Controller : MonoBehaviour
     //what the player does when they attack
     public void Attack()
     {
-        if(keyboard.activeSelf){
-            //get an enemy collider
-            Collider2D collider = Physics2D.OverlapCircle(keyboard.transform.position, attackRange, whatIsEnemy);
-            
-            //if there is a collider, do damage to it
-            if(collider != null){
-                StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
-                Enemy e = collider.gameObject.GetComponent<Enemy>();
-                e.TakeDamage(1, 1);
-            }
+        //get an enemy collider
+        Collider2D collider = Physics2D.OverlapCircle(keyboardController.gameObject.transform.position, attackRange, whatIsEnemy);
+        
+        //if there is a collider, do damage to it
+        if(collider != null){
+            StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
+            Enemy e = collider.gameObject.GetComponent<Enemy>();
+            e.TakeDamage(1, 1);
         }
     }
 
