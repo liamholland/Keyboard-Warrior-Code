@@ -3,20 +3,18 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
+    [Header("-- Movement --")]
     public bool airControl;
-    public GameObject keyboard;
-    public LayerMask whatIsEnemy;
-
-
     [SerializeField] private float maxMoveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float jumpHoldDuration;
     [SerializeField] private GameObject groundCheck;
     [SerializeField] private float GCRadius;
     [SerializeField] private LayerMask whatIsGround;
-    [SerializeField] private Rigidbody2D playerRigid;
-    [SerializeField] private BoxCollider2D playerCollider;
-    [SerializeField] private SpriteRenderer playerRenderer;
+    [Range(20f, 50f)] [SerializeField] private float grappleSpeed;  //the speed at which the player grapples towards a point
+
+
+    [Header("-- Dash --")]
     [Range(25f, 50f)] [SerializeField] private float dashSpeed;
     [Range(0f, 10f)] [SerializeField] private float dashCoolDown;
     [Range(0f, 0.5f)] [SerializeField] private float dashTime;  //the amount of time the dash lasts for
@@ -25,18 +23,27 @@ public class Controller : MonoBehaviour
     [Range(0f, 3f)] [SerializeField] private float dashXShakeMagnitude;  //the magnitude of the dash on the x axis
     [Range(0f, 0.1f)] [SerializeField] private float dashShakeTime;    //the longest time the camera can shake for at once
     [Range(0f, 0.1f)] [SerializeField] private float attackShakeTime;
-    [SerializeField] private float attackShakeSpeed;
     [SerializeField] private float dashShakeSpeed;  //the speed of the camera when shaking during a dash
     [SerializeField] private Color dashColor;
-    [Range(20f, 50f)] [SerializeField] private float grappleSpeed;  //the speed at which the player grapples towards a point
-    [SerializeField] private float deathZoneY;  //the y below which the player is dead
-    [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
+
+
+    [Header("-- Combat --")]
+    public LayerMask whatIsEnemy;
     [SerializeField] private float attackRange;
     [SerializeField] private int health;
+    [SerializeField] private float attackShakeSpeed;
+
+
+    [Header("-- Other --")]
+    public GameObject keyboard;
+    [SerializeField] private float deathZoneY;  //the y below which the player is dead
+    [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
 
 
 
 
+    private SpriteRenderer playerRenderer;
+    private Rigidbody2D playerRigid;
     private KeyboardController keyboardController; //reference to the keyboard controller
     private CameraController cameraController;  //reference to the camera controller
     private bool jumpAvailable = true;
@@ -54,6 +61,12 @@ public class Controller : MonoBehaviour
 
         //get a reference to the keyboard controller
         keyboardController = keyboard.GetComponent<KeyboardController>();
+
+        //get a reference to the renderer
+        playerRenderer = GetComponent<SpriteRenderer>();
+
+        //get a reference to the rigid body
+        playerRigid = GetComponent<Rigidbody2D>();
     }
 
     void Update(){

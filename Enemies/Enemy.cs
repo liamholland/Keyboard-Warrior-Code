@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour
     public bool isHostile;  //is the enemy hostile
     public Vector2[] patrolPoints;  //points the enemy will patrol on when it is not hostile
     public LayerMask whatIsPlayer;  //layermask to identify the player
+    public LayerMask whatIsObstacle;  //layermask to identify the ground for pathfinding
     public GameObject player;   //what is the player
 
     [SerializeField] private int health;
@@ -18,6 +19,8 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float attackWindUpDuration;    //amount of time the enemy winds up their attack for
     [SerializeField] private Color attackFlashColor;  //the color that the enemy flashes when it attacks
     [SerializeField] private Color attackWindUpColor;  //the color that the enemy flashes when it is winding up an attack
+    [SerializeField] private float pathScanningInterval;    //the amount the enemy scans will move left and right when it detects a collision#
+    [SerializeField] [Range(0.5f, 2f)] private float maxPathFindingTime;  //the upper limit on the amount of time that can be spent pathfinding
 
 
     private Rigidbody2D enemyRigid;
@@ -84,6 +87,55 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    //path finding
+    private Vector2 FindPath(Vector2 toPoint)
+    {
+        //check if there is ground in the way
+        RaycastHit2D ground = Physics2D.Raycast(transform.position, toPoint - (Vector2)transform.position, Vector2.Distance(transform.position, toPoint), whatIsObstacle);
+
+        //return the point that was passed if there is nothing in the way
+        if(ground.collider == null) return toPoint;
+
+        //otherwise, find a temporary point to travel to to avoid the ground
+
+        //initialise a left and right point at the point of the collision
+        Vector2 leftPoint = ground.point;
+        Vector2 rightPoint = ground.point;
+
+        //declare two scanners
+        RaycastHit2D leftScan;
+        RaycastHit2D rightScan;
+        
+        float elapsedTime = 0f;
+
+        //scan left and right until there is no ground or the maximum time is exceeded
+        while(elapsedTime < maxPathFindingTime){
+            //move the target of the left and right scanners more left and right
+            leftPoint = new Vector2(leftPoint.x - pathScanningInterval, leftPoint.y);
+            rightPoint = new Vector2(rightPoint.x + pathScanningInterval, rightPoint.y);
+
+            //do a scan to the left and to the right
+            leftScan = Physics2D.Raycast(transform.position, leftPoint - (Vector2)transform.position, Vector2.Distance(transform.position, leftPoint), whatIsObstacle);
+            rightScan = Physics2D.Raycast(transform.position, rightPoint - (Vector2)transform.position, Vector2.Distance(transform.position, rightPoint), whatIsObstacle);
+
+            //if there is a space, check that there is enough space for the enemy, if so return the point
+            if(leftScan.collider == null){
+                Collider2D groundNearHit = Physics2D.OverlapCircle(leftPoint, 1f, whatIsObstacle);
+
+                if(groundNearHit == null) return leftPoint;
+            }
+            else if(rightScan.collider == null){
+                Collider2D groundNearHit = Physics2D.OverlapCircle(rightPoint, 1f, whatIsObstacle);
+
+                if(groundNearHit == null) return rightPoint;
+            }
+
+            elapsedTime += Time.deltaTime;
+        }
+
+        return transform.position;  //something has gone wrong, return the enemy's position
+    }
+
     //point the enemy towards the target it is heading for
     private void PointTowardsTarget(){
         if(currentTarget.x > transform.position.x){
@@ -147,15 +199,18 @@ public class Enemy : MonoBehaviour
         //for each point provided
         foreach (Vector2 point in patrolPoints)
         {
-            //get the distance between the enemy and the point
-            //cannot use Vector2.Distance() because i need to know if it's negative
-            float differenceInPosition = point.x - transform.position.x;
+            while(true){
+                //set the current target to the point or a temporary point to avoid obstacles
+                currentTarget = FindPath(point);
 
-            //direction of the point relevant to the enemy
-            float direction = differenceInPosition / Mathf.Abs(differenceInPosition);
-
-            //set the current target to the point
-            currentTarget = point;
+                //if the pathfinding returned a temporary point, travel to that point and try again
+                if(Equals(point, currentTarget)){
+                    break;
+                }
+                else{
+                    yield return new WaitUntil(() => Vector2.Distance(currentTarget, transform.position) < 0.4f);
+                }
+            }
 
             yield return new WaitUntil(() => Vector2.Distance(point, transform.position) < 0.4f);
         }
@@ -204,6 +259,9 @@ public class Enemy : MonoBehaviour
         foreach(Vector2 point in patrolPoints){
             Gizmos.DrawWireSphere(point, 0.4f);
         }
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, currentTarget);
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, attackRange);

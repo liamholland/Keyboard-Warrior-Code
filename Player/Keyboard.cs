@@ -45,8 +45,8 @@ public class KeyboardController : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
+    void OnTriggerEnter2D(Collider2D other){
+        //if the collision is with the ground
         if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             //keyboard has hit the ground - stop coroutines
