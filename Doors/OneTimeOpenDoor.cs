@@ -11,7 +11,7 @@ public class OneTimeOpenDoor : MonoBehaviour, IDoor
 
     void Update(){
         //destroy the door if it has completed its open animation
-        if(IsOpen) Destroy(gameObject);
+        if(IsOpen) gameObject.SetActive(false);
     }
 
     //not used in this case

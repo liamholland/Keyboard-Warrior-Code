@@ -10,16 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 68d13b801049321479478ff1e32a7adc, type: 3}
-  m_Name: Test3
+  m_Name: WaitforEnemyDeath
   m_EditorClassIdentifier: 
   conversationLines:
-  - speakerName: npc
-    line: if this works
-  - speakerName: npc
-    line: it means that the system works
-  - speakerName: npc
-    line: so you can finish work on this for today
-  - speakerName: you
-    line: poggers
+  - speakerName: Jailed NPC
+    line: You still haven't killed it... Please do.
   availableAtStart: 1
+  makeDefaultAfterFinished: 1
   isAvailable: 0
