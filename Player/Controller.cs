@@ -4,7 +4,8 @@ using UnityEngine;
 public class Controller : MonoBehaviour
 {
     [Header("-- Movement --")]
-    public bool airControl;
+    public bool airControl; //can the player move in the air
+    public bool canDash;    //can the player dash
     [SerializeField] private float maxMoveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float jumpHoldDuration;
@@ -36,11 +37,8 @@ public class Controller : MonoBehaviour
 
     [Header("-- Other --")]
     public KeyboardController keyboardController; //reference to the keyboard controller
+    [SerializeField] private Animator dialogueBoxAnimator;  //the animator for the dialogueBox
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
-    [SerializeField] private float respawnZoneY; //the y at which the player will be respawned
-
-
-
 
     private SpriteRenderer playerRenderer;
     private Rigidbody2D playerRigid;
@@ -52,6 +50,7 @@ public class Controller : MonoBehaviour
     private bool atGrapplePoint = false;    //is the player hooked to a grapple point
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
+    private Vector2 lastGroundedPosition;   //the last place the player was on the ground
 
     private void Awake(){
         //get a reference to the camera controller
@@ -95,11 +94,14 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate()
     {
+        if(dialogueBoxAnimator.GetBool("inConversation")) return;   //the player cannot move if they are talking to an npc
+
         //if the player fell off the map
         if(transform.position.y < deathZoneY){
-            transform.position = new Vector2(0f, respawnZoneY);
+            transform.position = lastGroundedPosition;  //put the player back to where they were
+            playerRigid.velocity = Vector2.zero;    //remove any velocity the player has
         }
-        else if (!Npc.isTalking){   //the player cannot move if they are talking to an npc
+        else {
             Move();
         }
     }
@@ -111,6 +113,8 @@ public class Controller : MonoBehaviour
         }
 
         bool grounded = CheckIfGrounded();
+
+        if(grounded) lastGroundedPosition = transform.position; //save the place where the player was last grounded
 
         if ((grounded || airControl) && !atGrapplePoint){
             playerRigid.velocity = new Vector2(maxMoveSpeed * Input.GetAxis("Horizontal"), playerRigid.velocity.y);   //set the velocity of the player
@@ -131,7 +135,7 @@ public class Controller : MonoBehaviour
                 jumpAvailable = false;
             }
         }
-        else if(Input.GetButton("Dash") && dashAvailable){
+        else if(canDash && Input.GetButton("Dash") && dashAvailable){
             StartCoroutine(Dash());
         }
     }
@@ -178,7 +182,7 @@ public class Controller : MonoBehaviour
         playerRenderer.color = dashColor;
         
         //apply the dash
-        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, dashSpeed * Input.GetAxisRaw("Vertical"));
+        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, transform.position.y);
 
         //shake the camera - applied only in the direction opposite to the direction of the dash
         StartCoroutine(cameraController.ShakeCamera(dashShakeSpeed, dashShakeTime, new Vector2(transform.localScale.x * dashXShakeMagnitude, Input.GetAxisRaw("Vertical")) * 0.4f, Vector2.zero));
@@ -248,8 +252,6 @@ public class Controller : MonoBehaviour
     }
 
     void OnDrawGizmos() {
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(new Vector2(0f, respawnZoneY), 2f);
 
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(new Vector2(0f, deathZoneY), 2f);

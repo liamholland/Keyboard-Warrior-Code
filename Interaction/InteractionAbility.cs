@@ -1,23 +1,64 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class InteractionAbility : MonoBehaviour
 {
-    public float interactionRange;
-    public LayerMask whatIsInteractable;
-    public Text interactionInstructions;
+    public float interactionRange;  //the range that the entity can interact with interactables
+    public LayerMask whatIsInteractable;    //reference to the interactable layer
+    public Animator instructionsAnimator;   //the animator for the instructions box
+
+    [SerializeField] private TextMeshProUGUI interactionInstructions;   //The text element of the box
+
+    [Header("-- Camera Settings-- ")]
+    [SerializeField] private float interactionShakeSpeed;   //speed the camera will shake
+    [SerializeField] [Range(0f, 0.1f)] private float shakeTime; //the amount of time the shake lasts
+
+
+    private GameObject closestInteractable; //the closest interactable to the entity
+    private GameObject currInteractable;    //the current interactable to show
+    private CameraController cameraController;  //reference to the camera controller
+
+    void Start(){
+        //get a reference to the camera controller
+        cameraController = Camera.main.GetComponent<CameraController>();
+    }
 
     void Update()
     {
         //search for interactables each frame
-        GameObject g = GetClosestInteractable();
-
-        //set the text of the interaction instructions on the HUD
-        interactionInstructions.text = g == null ? "" : g.GetComponent<IObject>().Instructions;
+        closestInteractable = GetClosestInteractable();
 
         //if the player is trying to interact, call the interact function on the nearest interactable
-        if (g != null && Input.GetButtonDown("Interact")){
-            g.GetComponent<IObject>().Do();
+        if (closestInteractable != null && Input.GetButtonDown("Interact")){
+            //remove the text
+            interactionInstructions.text = "";
+            
+            //animate the interaction
+            instructionsAnimator.SetBool("interactionDone", true);
+
+            //apply a camera shake
+            StartCoroutine(cameraController.ShakeCamera(interactionShakeSpeed, shakeTime, new Vector2(1, 0), new Vector2(1, 0)));
+
+            //execute the interaction on the object
+            closestInteractable.GetComponent<IObject>().Do();
+
+        }
+
+        if(closestInteractable != currInteractable){
+            currInteractable = closestInteractable;
+            instructionsAnimator.SetBool("interactableAvailable", !instructionsAnimator.GetBool("interactableAvailable"));
+        }
+
+        if(instructionsAnimator.GetCurrentAnimatorStateInfo(0).IsName("Hiding")){
+            //set the text of the interaction instructions on the HUD
+            interactionInstructions.text = closestInteractable == null ? "" : closestInteractable.GetComponent<IObject>().Instructions;
+        }
+
+        if(instructionsAnimator.GetCurrentAnimatorStateInfo(0).IsName("InteractionDone")){
+            //stop the animation from repeating
+            instructionsAnimator.SetBool("interactionDone", false);
         }
     }
 

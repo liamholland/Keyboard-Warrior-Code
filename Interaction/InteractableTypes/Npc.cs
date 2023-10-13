@@ -1,21 +1,32 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class Npc : MonoBehaviour, IObject
 {
     public Conversation defaultConversation;
     public Conversation[] conversations;
-    public Text dialougeBox;
-    public Text speakerName;
-    public Animator dBoxAnimator;
+    public TextMeshProUGUI dialougeBox;
+    public TextMeshProUGUI speakerName;
+    public Animator dialogueBoxAnimator;
 
     private int currentLineIndex;
     private Conversation currentConvo;
+    private bool isTalking = false;
 
-    public static bool isTalking = false;
+    public bool IsTalking {
+        get => isTalking;
+        set {
+            isTalking = value;
+
+            //set the value of the dialogue box
+            dialogueBoxAnimator.SetBool("inConversation", value);
+        }
+    }
 
     private void Start()
     {
+        //make each conversation available at the start if it needs to be
         foreach (Conversation c in conversations)
             c.isAvailable = c.availableAtStart;
     }
@@ -35,12 +46,13 @@ public class Npc : MonoBehaviour, IObject
         }
     }
 
+    //called once for each interaction
     public void Do()
     {
         if (isTalking)
         {
             currentLineIndex++;
-            Convo(currentConvo);
+            RunConversation(currentConvo);
         }
         else
         {
@@ -49,28 +61,26 @@ public class Npc : MonoBehaviour, IObject
                 if (c.isAvailable)
                 {
                     currentLineIndex = 0;
-                    isTalking = true;
+                    IsTalking = true;
                     currentConvo = c;
-                    dBoxAnimator.SetBool("animTalking", true);
-                    Convo(c);
+                    RunConversation(c);
                     return;
                 }
             }
             currentLineIndex = 0;
-            isTalking = true;
+            IsTalking = true;   //animates the dialogue box as well
             currentConvo = defaultConversation;
-            dBoxAnimator.SetBool("animTalking", true);
-            Convo(defaultConversation);
+            RunConversation(defaultConversation);
         }
     }
 
-    private void Convo(Conversation c)
+    private void RunConversation(Conversation c)
     {
         if(currentLineIndex >= c.conversationLines.Length)
         {
             c.isAvailable = false;
-            isTalking = false;
-            dBoxAnimator.SetBool("animTalking", false);
+            IsTalking = false;
+            dialogueBoxAnimator.SetBool("animTalking", false);
             dialougeBox.text = "";
             speakerName.text = "";
             return;
