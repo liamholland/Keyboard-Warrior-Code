@@ -4,27 +4,35 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [Header("-- Target Tracking --")]
     public bool isHostile;  //is the enemy hostile
-    public Vector2[] patrolPoints;  //points the enemy will patrol on when it is not hostile
     public LayerMask whatIsPlayer;  //layermask to identify the player
-    public LayerMask whatIsObstacle;  //layermask to identify the ground for pathfinding
     public GameObject player;   //what is the player
-    public bool canMoveIn2D = false;    //can the enemy move in 2 dimensions
-
-    [SerializeField] private int health;
-    [SerializeField] private float passiveMovespeed;
-    [SerializeField] private float hostileMovespeed;
-    [Range(0f, 0.5f)] [SerializeField] private float damageFlashTime;   //amount of time the enemy flashes for damage
-    [SerializeField] private Color damageFlashColor;  //the color that the enemy flashes when it takes damage
-    [SerializeField] private float attackRange; //the range the enemy can attack from
-    [SerializeField] private float attackWindUpDuration;    //amount of time the enemy winds up their attack for
-    [SerializeField] private Color attackFlashColor;  //the color that the enemy flashes when it attacks
-    [SerializeField] private Color attackWindUpColor;  //the color that the enemy flashes when it is winding up an attack
-    [SerializeField] private float pathScanningInterval;    //the amount the enemy scans will move left and right when it detects a collision#
-    [SerializeField] [Range(0.5f, 2f)] private float maxPathFindingTime;  //the upper limit on the amount of time that can be spent pathfinding
-    [SerializeField] private float spaceForEnemy;   //the size of a space the pathfinding needs to look for
     [SerializeField] private float playerEscapeRange;   //the distance the player must reach for this enemy to become passive again
 
+
+    [Header("-- Movement --")]
+    public Vector2[] patrolPoints;  //points the enemy will patrol on when it is not hostile
+    [SerializeField] private float passiveMovespeed;
+    [SerializeField] private float hostileMovespeed;
+    public bool canMoveIn2D = false;    //can the enemy move in 2 dimensions
+    [Header("If canMoveIn2D = true")]
+    [SerializeField] private float pathScanningInterval;    //the amount the enemy scans will move left and right when it detects a collision#
+    [SerializeField] private float spaceForEnemy;   //the size of a space the pathfinding needs to look for
+    [SerializeField] [Range(0.5f, 2f)] private float maxPathFindingTime;  //the upper limit on the amount of time that can be spent pathfinding
+    public LayerMask whatIsObstacle;  //layermask to identify the ground for pathfinding
+
+
+    [Header("-- Combat --")]
+    [SerializeField] private int health;
+    [Range(0f, 0.5f)] [SerializeField] private float damageFlashTime;   //amount of time the enemy flashes for damage
+    [SerializeField] private Color damageFlashColor;  //the color that the enemy flashes when it takes damage
+    public Attack mainAttack;   //the attack the enemy performs
+
+
+    [Header("-- Other --")]
+    public Animator enemyAnimator;  //the animator of the enemy
+    [SerializeField] private Conversation[] conversationsToMakeAvailableOnDeath;    //the conversations made available upon defeat of the enemy
 
     private Rigidbody2D enemyRigid;
     private SpriteRenderer enemyRenderer;
@@ -56,14 +64,15 @@ public class Enemy : MonoBehaviour
     {
         if (isHostile)
         {
+            //set the target to the player
+            currentTarget = canMoveIn2D ? FindPathXY(player.transform.position) : FindPathX(player.transform.position);
+
             //if the player has escaped the enemy
             if(Vector2.Distance(transform.position, currentTarget) > playerEscapeRange){
                 isHostile = false;
                 return;
             }
 
-            //set the target to the player
-            currentTarget = FindPathXY(player.transform.position);
 
             if(TargetWithinAttackRange(player.transform.position) && !isAttacking){
                 StartCoroutine(Attack());
@@ -91,10 +100,17 @@ public class Enemy : MonoBehaviour
             other.gameObject.layer == LayerMask.NameToLayer("keyboard")){
             //stop the passive coroutine
             StopCoroutine(Passive());
-            
+            passiveMoveRoutineActive = false;
+
             isHostile = true;   //the enemy is hostile
         }
     }
+
+    //path finding for enemies which can only move left and right on the ground
+    private Vector2 FindPathX(Vector2 toPoint){
+        return toPoint;
+    }
+
 
     //path finding for 2D, flying enemies
     private Vector2 FindPathXY(Vector2 toPoint)
@@ -162,41 +178,32 @@ public class Enemy : MonoBehaviour
         isAttacking = true;
 
         //stop the enemy
-        currentMoveSpeed = 0f;
+        currentMoveSpeed = mainAttack.AttackMoveSpeed;
 
-        Color enemyColor = enemyRenderer.color;
-
-        enemyRenderer.color = attackWindUpColor;
+        mainAttack.WindUpAnimation();   //run the windup animation
 
         //wind up on the enemies attack
-        yield return new WaitForSeconds(attackWindUpDuration);
-
-        enemyRenderer.color = attackFlashColor;
+        yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Attack"));
 
         //find all the player colliders in range of the enemy after the wind up
-        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, attackRange, whatIsPlayer);
+        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, mainAttack.AttackRange, whatIsPlayer);
 
-        //if any colliders were in range
-        if(colliderInRange != null){
-            colliderInRange.gameObject.GetComponent<Controller>().TakeDamage(1);
-        }
+        //execute the attack
+        mainAttack.DoAttack(colliderInRange);
 
-        yield return new WaitForSeconds(0.1f);
+        //wait until the animation for the attack is done
+        yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
 
         //reset the move speed to be hostile
         currentMoveSpeed = hostileMovespeed;
 
-        enemyRenderer.color = enemyColor;
-
         //the enemy is no longer attacking
         isAttacking = false;
-
-        yield break;
     }
 
     //is the target within the attack range of the enemy
     private bool TargetWithinAttackRange(Vector2 targetPosition){
-        return Vector2.Distance(transform.position, targetPosition) < attackRange;
+        return Vector2.Distance(transform.position, targetPosition) < mainAttack.AttackRange;
     }
 
     //default implementation of a passive action
@@ -210,7 +217,7 @@ public class Enemy : MonoBehaviour
         {
             while(true){
                 //set the current target to the point or a temporary point to avoid obstacles
-                currentTarget = FindPathXY(point);
+                currentTarget = canMoveIn2D ? FindPathXY(point) : FindPathX(point);
 
                 //if the pathfinding returned a temporary point, travel to that point and try again
                 if(Equals(point, currentTarget)){
@@ -258,6 +265,13 @@ public class Enemy : MonoBehaviour
         enemyRenderer.color = enemyColor;
 
         if(health <= 0){
+            //enemy is dead
+
+            //make all conversations available
+            foreach(Conversation c in conversationsToMakeAvailableOnDeath){
+                c.isAvailable = true;
+            }
+
             Destroy(gameObject);
         }
     }
@@ -272,7 +286,7 @@ public class Enemy : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(transform.position, currentTarget);
 
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, playerEscapeRange);
     }
 }
