@@ -39,6 +39,7 @@ public class Controller : MonoBehaviour
     public KeyboardController keyboardController; //reference to the keyboard controller
     [SerializeField] private Animator dialogueBoxAnimator;  //the animator for the dialogueBox
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
+    public static bool interacting = false; //is the player interacting with something
 
     private SpriteRenderer playerRenderer;
     private Rigidbody2D playerRigid;
@@ -94,7 +95,7 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(dialogueBoxAnimator.GetBool("inConversation")) return;   //the player cannot move if they are talking to an npc
+        if(interacting) return;   //the player cannot move if they are interacting with something
 
         //if the player fell off the map
         if(transform.position.y < deathZoneY){
@@ -117,7 +118,7 @@ public class Controller : MonoBehaviour
         if(grounded) lastGroundedPosition = transform.position; //save the place where the player was last grounded
 
         if ((grounded || airControl) && !atGrapplePoint){
-            playerRigid.velocity = new Vector2(maxMoveSpeed * Input.GetAxis("Horizontal"), playerRigid.velocity.y);   //set the velocity of the player
+            playerRigid.velocity = new Vector2(maxMoveSpeed * Input.GetAxisRaw("Horizontal"), playerRigid.velocity.y);   //set the velocity of the player
         }
 
         //set the last grounded time if the player is allowed to jump
@@ -258,5 +259,8 @@ public class Controller : MonoBehaviour
 
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(groundCheck.transform.position, GCRadius);
     }
 }

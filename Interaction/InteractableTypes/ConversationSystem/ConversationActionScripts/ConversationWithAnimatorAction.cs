@@ -7,7 +7,7 @@ using UnityEngine;
 public class ConversationWithAnimatorAction : Conversation
 {
 
-    [SerializeField] private AnimatorSettings[] animators;  //list of animators and the values to set
+    [SerializeField] private AnimatorParameterSettings[] animators;  //list of animators and the values to set
 
     public override bool HasAction => true; //this class has an action to perform
 
@@ -16,9 +16,9 @@ public class ConversationWithAnimatorAction : Conversation
     public override void DoAction()
     {
         //set the parameters on the various animators
-        foreach(AnimatorSettings animator in animators){
+        foreach(AnimatorParameterSettings animator in animators){
             switch(animator.type){
-                case AnimatorSettings.ParameterType.BOOL:
+                case AnimatorParameterSettings.ParameterType.BOOL:
                     SetAnimatorBoolParameter(animator.animatorGameObjectName, animator.parameterName, bool.Parse(animator.value));
                     break;
                 default:
@@ -27,6 +27,7 @@ public class ConversationWithAnimatorAction : Conversation
         }
     }
 
+    //function for setting a boolean parameter
     private void SetAnimatorBoolParameter(string gameObjectName, string paramName, bool value){
         //find the animator
         animator = GameObject.Find(gameObjectName).GetComponent<Animator>();
@@ -38,7 +39,7 @@ public class ConversationWithAnimatorAction : Conversation
 
     //class to define animators
     [Serializable]
-    private class AnimatorSettings{
+    private class AnimatorParameterSettings{
         public string animatorGameObjectName;   //the name of the game object with the animator on it
         public string parameterName;    //the name of a parameter to change
         public ParameterType type;

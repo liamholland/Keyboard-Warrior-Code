@@ -46,20 +46,30 @@ public class InteractionAbility : MonoBehaviour
 
         }
 
+        //if the closest interactable has changed
         if(closestInteractable != currInteractable){
+            //update the latest closest interactable
             currInteractable = closestInteractable;
+
+            //register that there is an available interactable with the animator
             instructionsAnimator.SetBool("interactableAvailable", !instructionsAnimator.GetBool("interactableAvailable"));
         }
 
+        //if the instructions box is hidden
         if(instructionsAnimator.GetCurrentAnimatorStateInfo(0).IsName("Hiding")){
             //set the text of the interaction instructions on the HUD
             interactionInstructions.text = closestInteractable == null ? "" : closestInteractable.GetComponent<IObject>().Instructions;
         }
 
+        //if the instructions box is doing the interaction
         if(instructionsAnimator.GetCurrentAnimatorStateInfo(0).IsName("InteractionDone")){
             //stop the animation from repeating
             instructionsAnimator.SetBool("interactionDone", false);
+
         }
+        
+        //update the show instructions
+        instructionsAnimator.SetBool("showInstructions", closestInteractable == null ? false : closestInteractable.GetComponent<IObject>().ShowInstructions);
     }
 
     //goes through each of the interactables and returns the closest one
@@ -68,7 +78,7 @@ public class InteractionAbility : MonoBehaviour
         //search for colliders in the area of the player
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, whatIsInteractable);
         
-        float currentSmallest = interactionRange;
+        float currentSmallest = 1000f;
 
         GameObject closest = null;
 

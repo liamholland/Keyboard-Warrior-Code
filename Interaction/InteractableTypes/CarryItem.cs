@@ -22,6 +22,8 @@ public class CarryItem : MonoBehaviour, IObject
         } 
     }
 
+    public bool ShowInstructions => true;
+
     public void Do()
     {
         isBeingCarried = !isBeingCarried;

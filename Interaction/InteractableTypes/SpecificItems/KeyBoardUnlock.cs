@@ -11,6 +11,8 @@ public class KeyBoardUnlock : MonoBehaviour, IObject
 
     public string Instructions { get => "Become a Keyboard Warrior"; }
 
+    public bool ShowInstructions => true;
+
     //enable the player's keyboard
     public void Do()
     {

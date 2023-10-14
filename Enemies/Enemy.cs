@@ -9,6 +9,7 @@ public class Enemy : MonoBehaviour
     public LayerMask whatIsPlayer;  //layermask to identify the player
     public LayerMask whatIsObstacle;  //layermask to identify the ground for pathfinding
     public GameObject player;   //what is the player
+    public bool canMoveIn2D = false;    //can the enemy move in 2 dimensions
 
     [SerializeField] private int health;
     [SerializeField] private float passiveMovespeed;
@@ -22,6 +23,7 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float pathScanningInterval;    //the amount the enemy scans will move left and right when it detects a collision#
     [SerializeField] [Range(0.5f, 2f)] private float maxPathFindingTime;  //the upper limit on the amount of time that can be spent pathfinding
     [SerializeField] private float spaceForEnemy;   //the size of a space the pathfinding needs to look for
+    [SerializeField] private float playerEscapeRange;   //the distance the player must reach for this enemy to become passive again
 
 
     private Rigidbody2D enemyRigid;
@@ -54,8 +56,14 @@ public class Enemy : MonoBehaviour
     {
         if (isHostile)
         {
+            //if the player has escaped the enemy
+            if(Vector2.Distance(transform.position, currentTarget) > playerEscapeRange){
+                isHostile = false;
+                return;
+            }
+
             //set the target to the player
-            currentTarget = FindPath(player.transform.position);
+            currentTarget = FindPathXY(player.transform.position);
 
             if(TargetWithinAttackRange(player.transform.position) && !isAttacking){
                 StartCoroutine(Attack());
@@ -88,8 +96,8 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    //path finding
-    private Vector2 FindPath(Vector2 toPoint)
+    //path finding for 2D, flying enemies
+    private Vector2 FindPathXY(Vector2 toPoint)
     {
         //check if there is ground in the way
         RaycastHit2D ground = Physics2D.Raycast(transform.position, toPoint - (Vector2)transform.position, Vector2.Distance(transform.position, toPoint), whatIsObstacle);
@@ -202,7 +210,7 @@ public class Enemy : MonoBehaviour
         {
             while(true){
                 //set the current target to the point or a temporary point to avoid obstacles
-                currentTarget = FindPath(point);
+                currentTarget = FindPathXY(point);
 
                 //if the pathfinding returned a temporary point, travel to that point and try again
                 if(Equals(point, currentTarget)){

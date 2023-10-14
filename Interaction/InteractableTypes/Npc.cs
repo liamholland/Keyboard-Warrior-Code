@@ -46,6 +46,8 @@ public class Npc : MonoBehaviour, IObject
         }
     }
 
+    public bool ShowInstructions => true;
+
     //called once for each interaction
     public void Do()
     {   
@@ -76,6 +78,8 @@ public class Npc : MonoBehaviour, IObject
             currentConvo = defaultConversation;
             DisplayConversationLine(defaultConversation);
         }
+
+        Controller.interacting = IsTalking;
     }
 
     //function to display lines from conversations
