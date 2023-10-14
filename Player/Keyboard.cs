@@ -45,6 +45,9 @@ public class KeyboardController : MonoBehaviour
     private bool thrown = false;    //has the keyboard been thrown
     private bool hooked = false;    //has the keyboard been hooked to a grapple point
 
+    [Header("-- Coding Level --")]
+    public int level = 0;    //the level of the player
+
     private void Awake(){
         //get a reference to the player controller
         playerController = player.GetComponent<Controller>();

@@ -35,8 +35,11 @@ public class InteractionAbility : MonoBehaviour
             //remove the text
             interactionInstructions.text = "";
             
-            //animate the interaction
-            instructionsAnimator.SetBool("interactionDone", true);
+            //if the closest interactable is showing its instructions
+            if(closestInteractable.GetComponent<IObject>().ShowInstructions){
+                //animate the interaction
+                instructionsAnimator.SetBool("interactionDone", true);
+            }
 
             //apply a camera shake
             StartCoroutine(cameraController.ShakeCamera(interactionShakeSpeed, shakeTime, new Vector2(1, 0), new Vector2(1, 0)));

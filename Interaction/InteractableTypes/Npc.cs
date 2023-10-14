@@ -19,6 +19,8 @@ public class Npc : MonoBehaviour, IObject
         set {
             isTalking = value;
 
+            Controller.interacting = value;
+
             //set the value of the dialogue box
             dialogueBoxAnimator.SetBool("inConversation", value);
         }
