@@ -8,8 +8,9 @@ public class KeyBoardUnlock : MonoBehaviour, IObject
 
     [SerializeField] private OneTimeOpenDoor doorToOpen;    //the keyboard unlock needs to open a door
     [SerializeField] private Conversation[] conversationToMakeAvailable;  //npcs will comment on the keyboard 
+    [SerializeField] private Conversation[] conversationsToMakeUnavailable; //unlock will make some conversations unavailable
 
-    public string Instructions { get => "Become a Keyboard Warrior"; }
+    public string Instructions { get => "Press E to Become a Keyboard Warrior"; }
 
     public bool ShowInstructions => true;
 
@@ -21,6 +22,10 @@ public class KeyBoardUnlock : MonoBehaviour, IObject
         //make conversations available
         foreach(Conversation c in conversationToMakeAvailable){
             c.isAvailable = true;
+        }
+
+        foreach(Conversation c in conversationsToMakeUnavailable){
+            c.isAvailable = false;
         }
 
         doorToOpen.Open();

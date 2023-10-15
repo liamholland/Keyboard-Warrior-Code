@@ -29,9 +29,15 @@ public class Controller : MonoBehaviour
 
 
     [Header("-- Combat --")]
-    public LayerMask whatIsEnemy;
+    [SerializeField] private int playerHealth;
+    public LayerMask whatIsEnemy;   //reference to the enemy physics layer
+    
+    //the player's basic attacks
+    [SerializeField] private Attack sideAttack;
+    [SerializeField] private Attack upAttack;
+    [SerializeField] private Attack downAttack;
+
     [SerializeField] private float attackRange;
-    [SerializeField] private int health;
     [SerializeField] private float attackShakeSpeed;
 
 
@@ -62,6 +68,10 @@ public class Controller : MonoBehaviour
 
         //get a reference to the rigid body
         playerRigid = GetComponent<Rigidbody2D>();
+    }
+
+    void Start(){
+        Screen.SetResolution(1280, 720, false);
     }
 
     void Update(){
@@ -95,8 +105,6 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(interacting) return;   //the player cannot move if they are interacting with something
-
         //if the player fell off the map
         if(transform.position.y < deathZoneY){
             transform.position = lastGroundedPosition;  //put the player back to where they were
@@ -107,9 +115,11 @@ public class Controller : MonoBehaviour
         }
     }
 
+    //move the player character
     private void Move() 
     {
-        if(isDashing || isGrappling){
+        //dont move if the player is grappling or dashing or interacting
+        if(isDashing || isGrappling || interacting){
             return;
         }
 
@@ -158,10 +168,10 @@ public class Controller : MonoBehaviour
     //what to do when the player takes damage
     public void TakeDamage(int damage)
     {
-        health -= damage;
+        playerHealth -= damage;
         
         //if the player loses all its health, kill the player
-        if(health <= 0){
+        if(playerHealth <= 0){
             Destroy(gameObject);
         }
     }

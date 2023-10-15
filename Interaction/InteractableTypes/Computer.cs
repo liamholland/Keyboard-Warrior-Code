@@ -27,6 +27,8 @@ public class Computer : MonoBehaviour, IObject
 
     void Update()
     {
+        inputField.enabled = keyboard.KeyboardAvailable;    //can only type if you have a keyboard
+
         //stop the coroutine if the player has met the required level
         if (keyboard.level >= levelRequired)
         {
