@@ -28,6 +28,8 @@ public class CarryItem : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    public bool ShakeCameraOnInteract => true;
+
     public void Do()
     {
         isBeingCarried = !isBeingCarried;

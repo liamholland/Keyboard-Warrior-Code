@@ -19,6 +19,10 @@ public class CameraController : MonoBehaviour
     private Vector2 target; //the target position that the camera tracks to
     private float shakeSpeed; //speed of the camera when shaking
 
+    void Awake(){
+        player = GameObject.Find("Player"); //find the player
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,6 +36,8 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(player == null) return;
+
         if(!isShaking){
             //set the target to the player
             target = player.transform.position;

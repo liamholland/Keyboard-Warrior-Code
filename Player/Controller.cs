@@ -173,9 +173,9 @@ public class Controller : MonoBehaviour
         if(collider != null){
             //shake the camera
             StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
-
-            attack.DoAttack(collider);  //do the attack
         }
+        
+        attack.DoAttack(collider);  //do the attack
     }
 
     //Dash Ability

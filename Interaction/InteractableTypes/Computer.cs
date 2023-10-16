@@ -21,6 +21,8 @@ public class Computer : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    public bool ShakeCameraOnInteract => !computerUI.GetBool("computing");
+
     private bool canInteract = true;    //used to disable interactions when typing
     private string codedChars = "!@#*&10";  //the coded characters
 

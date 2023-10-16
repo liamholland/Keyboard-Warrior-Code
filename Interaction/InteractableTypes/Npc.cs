@@ -54,6 +54,8 @@ public class Npc : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    public bool ShakeCameraOnInteract => !isTalking;
+
     //called once for each interaction
     public void Do()
     {   

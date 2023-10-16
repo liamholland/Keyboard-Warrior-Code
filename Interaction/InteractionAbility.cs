@@ -31,25 +31,27 @@ public class InteractionAbility : MonoBehaviour
         closestInteractable = GetClosestInteractable();
 
         //if the player is trying to interact, call the interact function on the nearest interactable
-        if (closestInteractable != null && 
-            (closestInteractable.GetComponent<IObject>().UseDefaultInteractButton ? 
-                Input.GetButtonDown("Interact") : 
-                Input.GetKeyDown(closestInteractable.GetComponent<IObject>().CustomKeyCode))){
-            //remove the text
-            interactionInstructions.text = "";
+        if (closestInteractable != null){
+            IObject interactable = closestInteractable.GetComponent<IObject>();
             
-            //if the closest interactable is showing its instructions
-            if(closestInteractable.GetComponent<IObject>().ShowInstructions){
-                //animate the interaction
-                instructionsAnimator.SetBool("interactionDone", true);
+            if(interactable.UseDefaultInteractButton ? Input.GetButtonDown("Interact") : Input.GetKeyDown(interactable.CustomKeyCode)){
+                //remove the text
+                interactionInstructions.text = "";
+                
+                //if the closest interactable is showing its instructions
+                if(interactable.ShowInstructions){
+                    //animate the interaction
+                    instructionsAnimator.SetBool("interactionDone", true);
+                }
+
+                //apply a camera shake if the interactable is set up to do that
+                if(interactable.ShakeCameraOnInteract){
+                    StartCoroutine(cameraController.ShakeCamera(interactionShakeSpeed, shakeTime, new Vector2(1, 0), new Vector2(1, 0)));
+                }
+
+                //execute the interaction on the object
+                interactable.Do();
             }
-
-            //apply a camera shake
-            StartCoroutine(cameraController.ShakeCamera(interactionShakeSpeed, shakeTime, new Vector2(1, 0), new Vector2(1, 0)));
-
-            //execute the interaction on the object
-            closestInteractable.GetComponent<IObject>().Do();
-
         }
 
         //if the closest interactable has changed

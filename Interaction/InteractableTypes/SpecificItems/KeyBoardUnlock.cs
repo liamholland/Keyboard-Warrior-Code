@@ -18,6 +18,8 @@ public class KeyBoardUnlock : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    public bool ShakeCameraOnInteract => true;
+
     //enable the player's keyboard
     public void Do()
     {

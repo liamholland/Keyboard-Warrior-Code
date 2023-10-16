@@ -16,8 +16,10 @@ public class TutorialObject : MonoBehaviour, IObject
 
     public string CustomKeyCode => keycodeToUseInstead;
 
+    public bool ShakeCameraOnInteract => false;
+
     public void Do()
     {
-        Destroy(gameObject);    //just destroy the game object
+        gameObject.SetActive(false);    //just make the object inactive
     }
 }
