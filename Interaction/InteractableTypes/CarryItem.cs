@@ -24,6 +24,10 @@ public class CarryItem : MonoBehaviour, IObject
 
     public bool ShowInstructions => true;
 
+    public bool UseDefaultInteractButton => true;
+
+    public string CustomKeyCode => "";
+
     public void Do()
     {
         isBeingCarried = !isBeingCarried;

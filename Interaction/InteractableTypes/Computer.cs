@@ -17,6 +17,10 @@ public class Computer : MonoBehaviour, IObject
 
     public bool ShowInstructions => !computerUI.GetBool("computing");   //show the instructions if the player is not in the computer UI (computing = false)
 
+    public bool UseDefaultInteractButton => true;
+
+    public string CustomKeyCode => "";
+
     private bool canInteract = true;    //used to disable interactions when typing
     private string codedChars = "!@#*&10";  //the coded characters
 

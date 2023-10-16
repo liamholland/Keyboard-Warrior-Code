@@ -50,6 +50,10 @@ public class Npc : MonoBehaviour, IObject
 
     public bool ShowInstructions => true;
 
+    public bool UseDefaultInteractButton => true;
+
+    public string CustomKeyCode => "";
+
     //called once for each interaction
     public void Do()
     {   

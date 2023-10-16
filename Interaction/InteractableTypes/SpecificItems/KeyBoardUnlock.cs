@@ -14,6 +14,10 @@ public class KeyBoardUnlock : MonoBehaviour, IObject
 
     public bool ShowInstructions => true;
 
+    public bool UseDefaultInteractButton => true;
+
+    public string CustomKeyCode => "";
+
     //enable the player's keyboard
     public void Do()
     {

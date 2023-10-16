@@ -31,7 +31,10 @@ public class InteractionAbility : MonoBehaviour
         closestInteractable = GetClosestInteractable();
 
         //if the player is trying to interact, call the interact function on the nearest interactable
-        if (closestInteractable != null && Input.GetButtonDown("Interact")){
+        if (closestInteractable != null && 
+            (closestInteractable.GetComponent<IObject>().UseDefaultInteractButton ? 
+                Input.GetButtonDown("Interact") : 
+                Input.GetKeyDown(closestInteractable.GetComponent<IObject>().CustomKeyCode))){
             //remove the text
             interactionInstructions.text = "";
             

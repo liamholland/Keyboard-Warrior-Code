@@ -267,12 +267,7 @@ public class Controller : MonoBehaviour
     void OnDrawGizmos() {
 
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(new Vector2(0f, deathZoneY), 2f);
-
-        // Gizmos.color = Color.cyan;
-        // Gizmos.DrawWireSphere(transform.position, sideAttack.AttackRange);
-        // Gizmos.DrawWireSphere(transform.position, upAttack.AttackRange);
-        // Gizmos.DrawWireSphere(transform.position, downAttack.AttackRange);
+        Gizmos.DrawLine(new Vector2(-100f, deathZoneY), new Vector2(100f, deathZoneY));
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(groundCheck.transform.position, GCRadius);
