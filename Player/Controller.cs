@@ -29,15 +29,12 @@ public class Controller : MonoBehaviour
 
 
     [Header("-- Combat --")]
-    [SerializeField] private int playerHealth;
     public LayerMask whatIsEnemy;   //reference to the enemy physics layer
     
     //the player's basic attacks
     [SerializeField] private Attack sideAttack;
     [SerializeField] private Attack upAttack;
     [SerializeField] private Attack downAttack;
-
-    [SerializeField] private float attackRange;
     [SerializeField] private float attackShakeSpeed;
 
 
@@ -154,25 +151,30 @@ public class Controller : MonoBehaviour
     //what the player does when they attack
     public void Attack()
     {
+        Attack attack;  //reference to the attack to use
+
+        if(Input.GetAxisRaw("Horizontal") != 0){
+            attack = sideAttack;
+        }
+        else if(Input.GetAxisRaw("Vertical") > 0){
+            attack = upAttack;
+        }
+        else if(Input.GetAxisRaw("Vertical") < 0){
+            attack = downAttack;
+        }
+        else{   //the player is not attacking in any direction
+            return;
+        }
+
         //get an enemy collider
-        Collider2D collider = Physics2D.OverlapCircle(keyboardController.gameObject.transform.position, attackRange, whatIsEnemy);
+        Collider2D collider = Physics2D.OverlapCircle(keyboardController.gameObject.transform.position, attack.AttackRange, whatIsEnemy);
         
         //if there is a collider, do damage to it
         if(collider != null){
+            //shake the camera
             StartCoroutine(cameraController.ShakeCamera(attackShakeSpeed, attackShakeTime, new Vector2(0f, 0.2f), new Vector2(transform.localScale.x * 0.8f, 0f)));
-            Enemy e = collider.gameObject.GetComponent<Enemy>();
-            e.TakeDamage(1, 1);
-        }
-    }
 
-    //what to do when the player takes damage
-    public void TakeDamage(int damage)
-    {
-        playerHealth -= damage;
-        
-        //if the player loses all its health, kill the player
-        if(playerHealth <= 0){
-            Destroy(gameObject);
+            attack.DoAttack(collider);  //do the attack
         }
     }
 
@@ -267,8 +269,10 @@ public class Controller : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(new Vector2(0f, deathZoneY), 2f);
 
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        // Gizmos.color = Color.cyan;
+        // Gizmos.DrawWireSphere(transform.position, sideAttack.AttackRange);
+        // Gizmos.DrawWireSphere(transform.position, upAttack.AttackRange);
+        // Gizmos.DrawWireSphere(transform.position, downAttack.AttackRange);
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(groundCheck.transform.position, GCRadius);

@@ -24,32 +24,16 @@ public class Enemy : MonoBehaviour
 
 
     [Header("-- Combat --")]
-    [SerializeField] private int health;
-    [Range(0f, 0.5f)] [SerializeField] private float damageFlashTime;   //amount of time the enemy flashes for damage
-    [SerializeField] private Color damageFlashColor;  //the color that the enemy flashes when it takes damage
     public Attack mainAttack;   //the attack the enemy performs
 
 
     [Header("-- Other --")]
     public Animator enemyAnimator;  //the animator of the enemy
-    [SerializeField] private Conversation[] conversationsToMakeAvailableOnDeath;    //the conversations made available upon defeat of the enemy
 
-    private Rigidbody2D enemyRigid;
-    private SpriteRenderer enemyRenderer;
     private bool passiveMoveRoutineActive = false;
     private Vector2 currentTarget;
     private float currentMoveSpeed;
     private bool isAttacking = false;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        //get the rigidbody of the enemy
-        enemyRigid = GetComponent<Rigidbody2D>();
-
-        //get the renderer of the enemy
-        enemyRenderer = GetComponent<SpriteRenderer>();
-    }
 
     void Update(){
         PointTowardsTarget();
@@ -233,47 +217,6 @@ public class Enemy : MonoBehaviour
 
         //the routine is finished
         passiveMoveRoutineActive = false;
-    }
-
-    //what the enemy does when it takes damage
-    public void TakeDamage(int damage, float knockbackForce)
-    {
-        health -= damage;   //reduce the enemies health
-        
-        //make the enemy flash to indicate damage was taken
-        StartCoroutine(FlashOnDamage());
-
-        if(health > 0){
-            currentTarget = transform.position;
-            enemyRigid.AddForce(new Vector2(knockbackForce * (transform.localScale.x * -1), 0.1f)); //add some knockback
-            currentTarget = player.transform.position;
-        }
-
-    }
-
-    private IEnumerator FlashOnDamage()
-    {
-        Color enemyColor = enemyRenderer.color;
-
-        //make enemy flash
-        enemyRenderer.color = damageFlashColor;
-
-        //delay
-        yield return new WaitForSeconds(damageFlashTime);
-
-        //back to the original color
-        enemyRenderer.color = enemyColor;
-
-        if(health <= 0){
-            //enemy is dead
-
-            //make all conversations available
-            foreach(Conversation c in conversationsToMakeAvailableOnDeath){
-                c.isAvailable = true;
-            }
-
-            Destroy(gameObject);
-        }
     }
 
     private void OnDrawGizmos()
