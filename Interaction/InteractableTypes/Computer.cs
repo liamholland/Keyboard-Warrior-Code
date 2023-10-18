@@ -83,11 +83,25 @@ public class Computer : MonoBehaviour, IObject
     {
         if (!canInteract) return;
 
+        AddEventListeners();
+
         //if computing = true (in the computer UI), set it to false and vice versa
         computerUI.SetBool("computing", !computerUI.GetBool("computing"));
 
         //the player is interacting with the computer
         Controller.interacting = true;
+    }
+
+    //method to add the relevent event listeners of this computer and remove all others
+    private void AddEventListeners(){
+        inputField.onSelect.RemoveAllListeners();
+        inputField.onSelect.AddListener(delegate { DisableInteract(); });
+
+        inputField.onDeselect.RemoveAllListeners();
+        inputField.onDeselect.AddListener(delegate { EnableInteract(); });
+
+        inputField.onValueChanged.RemoveAllListeners();
+        inputField.onValueChanged.AddListener(delegate { CheckPassCode(); });
     }
 
     //coroutine to repeatedly create a code above the computer

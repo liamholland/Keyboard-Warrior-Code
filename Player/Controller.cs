@@ -195,7 +195,7 @@ public class Controller : MonoBehaviour
         playerRenderer.color = dashColor;
         
         //apply the dash
-        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, transform.position.y);
+        playerRigid.velocity = new Vector2(dashSpeed * transform.localScale.x, 0f);
 
         //shake the camera - applied only in the direction opposite to the direction of the dash
         StartCoroutine(cameraController.ShakeCamera(dashShakeSpeed, dashShakeTime, new Vector2(transform.localScale.x * dashXShakeMagnitude, Input.GetAxisRaw("Vertical")) * 0.4f, Vector2.zero));
