@@ -153,17 +153,15 @@ public class Controller : MonoBehaviour
     {
         Attack attack;  //reference to the attack to use
 
-        if(Input.GetAxisRaw("Horizontal") != 0){
-            attack = sideAttack;
-        }
-        else if(Input.GetAxisRaw("Vertical") > 0){
+        //check the attack to use
+        if(Input.GetAxisRaw("Vertical") > 0){
             attack = upAttack;
         }
         else if(Input.GetAxisRaw("Vertical") < 0){
             attack = downAttack;
         }
-        else{   //the player is not attacking in any direction
-            return;
+        else{   //defaults to a side attack
+            attack = sideAttack;
         }
 
         //get an enemy collider

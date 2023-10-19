@@ -12,6 +12,7 @@ public class Computer : MonoBehaviour, IObject
     [SerializeField] private string passCode;   //the pass code for this computer
     [SerializeField] private TMP_InputField inputField; //the input field to watch
     [SerializeField] private TextMeshProUGUI passCodeLabel; //the label that displays the code for the computer
+    [SerializeField] private TextMeshProUGUI levelRequiredText; //label to display the required level for this computer
 
     public string Instructions => "Press E to Use Computer";
 
@@ -36,7 +37,7 @@ public class Computer : MonoBehaviour, IObject
         inputField.enabled = keyboard.KeyboardAvailable;    //can only type if you have a keyboard
 
         //stop the coroutine if the player has met the required level
-        if (keyboard.level >= levelRequired)
+        if (keyboard.Level >= levelRequired)
         {
             StopCoroutine(RefreshCodedCharacters());
             passCodeLabel.text = passCode;
@@ -83,7 +84,10 @@ public class Computer : MonoBehaviour, IObject
     {
         if (!canInteract) return;
 
-        AddEventListeners();
+        AddEventListeners();    //add event listeners
+
+        //display the required level
+        levelRequiredText.text = keyboard.FormatLevel(levelRequired) + " Required";
 
         //if computing = true (in the computer UI), set it to false and vice versa
         computerUI.SetBool("computing", !computerUI.GetBool("computing"));

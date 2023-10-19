@@ -43,7 +43,7 @@ public class Npc : MonoBehaviour, IObject
             }
             else
             {
-                return "Press E to Talk";
+                return "Press E to Listen";
             }
         }
     }

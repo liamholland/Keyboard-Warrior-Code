@@ -5,10 +5,12 @@ public class CameraController : MonoBehaviour
 {
     public GameObject player;
     public float cameraSpeed;
-    public float yOffset;   //the distance the camera is above the player
     [Range(0f, 10f)] public float xDeadZone;
     [Range(0f, 10f)] public float yDeadZone;
-
+    public float generalYOffset;    //the usual y offset on the camera
+    public float lookDownYOffset;   //the amount the camera looks down when the down button is held
+    
+    [SerializeField] private float lookAhead;   //the x lookahead when the player is moving
     [SerializeField] private bool ignoreDeadZone = false;  //should the camera use the deadzone
     [SerializeField] private float xCatchUpMultiplier;  //multiplier applied to cameraSpeed when player is outside the deadzone
     [SerializeField] private float yCatchUpMultiplier;  //multiplier applied to cameraSpeed when player is outside the deadzone
@@ -18,6 +20,7 @@ public class CameraController : MonoBehaviour
     private bool isShaking = false; //is the camera shaking
     private Vector2 target; //the target position that the camera tracks to
     private float shakeSpeed; //speed of the camera when shaking
+    private float yOffset;   //the distance the camera is above the player
 
     void Awake(){
         player = GameObject.Find("Player"); //find the player
@@ -43,6 +46,14 @@ public class CameraController : MonoBehaviour
             target = player.transform.position;
         }
 
+        //move the camera down if the down button is held
+        if(Input.GetAxisRaw("Vertical") < 0){
+            yOffset = lookDownYOffset;
+        }
+        else{
+            yOffset = generalYOffset;
+        }
+
         //track the target
         TrackTarget();
 
@@ -50,9 +61,9 @@ public class CameraController : MonoBehaviour
 
     //track the target position of the camera
     private void TrackTarget(){
-        float desiredX = target.x;
+        float desiredX = target.x + lookAhead * player.transform.localScale.x;
 
-        float xDiff = Mathf.Abs(desiredX - transform.position.x);    //difference between the player and camera x position
+        float xDiff = Mathf.Abs(player.transform.position.x - transform.position.x);    //difference between the player and camera x position
 
         //if the player has moved out of the x deadzone bounds or the deadzone isn't being used
         if(xDiff > xDeadZone || outOfBoundsX || ignoreDeadZone){
@@ -116,6 +127,10 @@ public class CameraController : MonoBehaviour
     /// <param name="positiveShake">The magnitude vector positively applied to the current target of the camera - applied second</param>
     public IEnumerator ShakeCamera(float force, float duration, Vector2 negativeShake, Vector2 positiveShake){
         if(isShaking) yield break;
+
+        float lookAheadSave = lookAhead;    //save the lookahead value
+
+        lookAhead = 0f; //nullify lookahead
         
         isShaking = true;   //the camera is now shaking
 
@@ -148,6 +163,8 @@ public class CameraController : MonoBehaviour
         isShaking = false;  //no longer shaking
 
         target = targetBeforeShake;
+
+        lookAhead = lookAheadSave;  //return the lookahead value
 
         ignoreDeadZone = false; //stop ignoring the deadzone
 

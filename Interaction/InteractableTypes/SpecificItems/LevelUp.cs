@@ -20,7 +20,7 @@ public class LevelUp : MonoBehaviour, IObject
     public void Do()
     {
         //level up the player
-        keyboardController.level++;
+        keyboardController.Level++;
 
         //if there is a door to open
         if(doorToOpen != null){

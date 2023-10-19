@@ -6,12 +6,13 @@ using UnityEngine;
 public class OneTimeOpenDoor : MonoBehaviour, IDoor
 {
     [SerializeField] private Animator doorAnimator; //the animator for the door
+    [SerializeField] private bool hideOnOpen = true;   //set the door to inactive upon opening
 
     public bool IsOpen => doorAnimator.GetCurrentAnimatorStateInfo(0).IsName("Open");
 
     void Update(){
-        //destroy the door if it has completed its open animation
-        if(IsOpen) gameObject.SetActive(false);
+        //hide the door if it has completed its open animation
+        if(IsOpen && hideOnOpen) gameObject.SetActive(false);
     }
 
     //not used in this case

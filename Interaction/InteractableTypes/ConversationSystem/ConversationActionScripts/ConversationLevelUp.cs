@@ -11,6 +11,7 @@ public class ConversationLevelUp : Conversation
     public override void DoAction()
     {
         //level up the keyboard
-        GameObject.Find("Keyboard").GetComponent<KeyboardController>().level++;
+        KeyboardController keyboard = GameObject.Find("Keyboard").GetComponent<KeyboardController>();
+        keyboard.Level++;
     }
 }

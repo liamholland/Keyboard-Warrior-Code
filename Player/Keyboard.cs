@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class KeyboardController : MonoBehaviour
@@ -46,7 +47,17 @@ public class KeyboardController : MonoBehaviour
     private bool hooked = false;    //has the keyboard been hooked to a grapple point
 
     [Header("-- Coding Level --")]
-    public int level = 0;    //the level of the player
+    [SerializeField] private int level = 0;    //the level of the player
+
+    //public accessor for level
+    public int Level {
+        get => level;
+        set{
+            level = value;  //set the value
+            currentLevelUI.text = FormatLevel(level);   //update the level ui
+        }
+    }
+    [SerializeField] private TextMeshProUGUI currentLevelUI;    //reference to the player UI that displays the level
 
     private void Awake(){
         //get a reference to the player controller
@@ -61,6 +72,8 @@ public class KeyboardController : MonoBehaviour
         keyboardCollider.enabled = available;
 
         KeyboardAvailable = available;  //can set the availability of the keyboard based on the inspector value at the start of the game
+
+        Level = level;  //set the level which also updates the UI
     }
 
     private void Update(){
@@ -69,7 +82,6 @@ public class KeyboardController : MonoBehaviour
             
             //check if the keyboard has reached the target
             if(Vector2.Distance(target, transform.position) < 0.05f){
-                
                 //if the keyboard has returned stop trying to return it
                 if(Vector2.Distance(target, startPosition) < 0.1f){
                     thrown = false; //keyboard is no longer thrown
@@ -81,6 +93,33 @@ public class KeyboardController : MonoBehaviour
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Returns the level formatted as a string with relative C language
+    /// Example:
+    /// level=3 -> "C#"
+    /// level=4 -> "C#++"
+    /// </summary>
+    /// <param name="level">The level as an integer</param>
+    /// <returns></returns>
+    public string FormatLevel(int level){
+        if(level < 1) return " ";    //there is no format for levels less than 1
+        
+        string res = "C";   //level at 1 or greater will always start with 'C'
+
+        //if the level has reached at least 3
+        if(level >= 3){
+            res += "#"; //it is at the level of C#
+            res += Mathf.Floor((level - 3) / 2) + 1; //modifier for the sharp level
+        }
+
+        //if the level is odd, it needs a ++ next to it
+        if(level >= 2 && level % 2 == 0){
+            res += "++";
+        }
+
+        return res; //return the result
     }
 
     void OnTriggerEnter2D(Collider2D other){
@@ -97,6 +136,8 @@ public class KeyboardController : MonoBehaviour
     //coroutine for throwing the keyboard as a grapple hook
     public IEnumerator ThrowKeyBoard(){
         transform.parent = null;   //stop the position of the keyboard being affected by the player
+
+        player.GetComponent<Animator>().Rebind();   //prevent the keyboard from being affected by animations
 
         target = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
 
@@ -123,6 +164,8 @@ public class KeyboardController : MonoBehaviour
     //coroutine for a long range attack with a keyboard
     public IEnumerator RangeAttackWithKeyboard(){
         transform.parent = null;   //stop the position of the keyboard being affected by the player
+
+        player.GetComponent<Animator>().Rebind();   //prevent the keyboard from being affected by animations
 
         target = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
 
