@@ -34,20 +34,21 @@ public class KeyboardController : MonoBehaviour
     [Range(1f, 30f)] [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
     [Range(1f, 30f)] [SerializeField] private float keyboardGrappleRange;
     [Range(1f, 30f)] [SerializeField] private float keyboardThrowAttackRange;
+    [SerializeField] private Attack throwAttack;    //the attack of performed when thrown
     
     [HideInInspector] public Vector2 startPosition;  //the position the keyboard started from
     [HideInInspector] public bool IsHooked { get => hooked; } //is the keyboard hooked - read only
     [HideInInspector] public bool IsThrown { get => thrown; }   //is the keyboard thrown - read only
     
+    [Header("-- Coding Level --")]
+    [SerializeField] private int level = 0;    //the level of the player
+
     private Controller playerController;    //reference to the player controller
     private SpriteRenderer keyboardRenderer;    //reference to the keyboard's renderer
     private BoxCollider2D keyboardCollider; //reference to the keyboard's collider
     private Vector2 target; //the target position the keyboard is heading for
     private bool thrown = false;    //has the keyboard been thrown
     private bool hooked = false;    //has the keyboard been hooked to a grapple point
-
-    [Header("-- Coding Level --")]
-    [SerializeField] private int level = 0;    //the level of the player
 
     //public accessor for level
     public int Level {
@@ -174,7 +175,7 @@ public class KeyboardController : MonoBehaviour
         yield return new WaitUntil(() => Vector2.Distance(transform.position, target) < 0.2f ||
             Vector2.Distance(player.transform.position, transform.position) > keyboardThrowAttackRange);
 
-        playerController.Attack();   //attack when it reaches its destination
+        playerController.Attack(throwAttack);   //attack when it reaches its destination
 
         target = startPosition;
     }

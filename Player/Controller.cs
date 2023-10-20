@@ -86,7 +86,21 @@ public class Controller : MonoBehaviour
 
         //if the player is attacking, the keyboard is not thrown and the keyboard is unlocked
         if (Input.GetButtonDown("Attack") && !keyboardController.IsThrown && keyboardController.KeyboardAvailable){
-            Attack();
+            
+            Attack attack;  //reference to the attack to use
+
+            //check the attack to use
+            if(Input.GetAxisRaw("Vertical") > 0){
+                attack = upAttack;
+            }
+            else if(Input.GetAxisRaw("Vertical") < 0){
+                attack = downAttack;
+            }
+            else{   //defaults to a side attack
+                attack = sideAttack;
+            }
+            
+            Attack(attack);
         }
         //when the player performs a ranged attack / grapple
         else if(Input.GetButtonDown("ThrowGrapple") && !keyboardController.IsThrown && keyboardController.longCableUnlocked){
@@ -148,22 +162,12 @@ public class Controller : MonoBehaviour
         }
     }
 
-    //what the player does when they attack
-    public void Attack()
+    /// <summary>
+    /// Make the player attack
+    /// </summary>
+    /// <param name="attack">The attack that will be used</param>
+    public void Attack(Attack attack)
     {
-        Attack attack;  //reference to the attack to use
-
-        //check the attack to use
-        if(Input.GetAxisRaw("Vertical") > 0){
-            attack = upAttack;
-        }
-        else if(Input.GetAxisRaw("Vertical") < 0){
-            attack = downAttack;
-        }
-        else{   //defaults to a side attack
-            attack = sideAttack;
-        }
-
         //get an enemy collider
         Collider2D collider = Physics2D.OverlapCircle(keyboardController.gameObject.transform.position, attack.AttackRange, whatIsEnemy);
         

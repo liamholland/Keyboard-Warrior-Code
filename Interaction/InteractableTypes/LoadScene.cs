@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class CloseGame : MonoBehaviour, IObject
+public class LoadScene : MonoBehaviour, IObject
 {
     public string Instructions => "Press E to Continue";
 
@@ -15,8 +15,10 @@ public class CloseGame : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    [SerializeField] private string levelToLoad;    //name of the level to load
+
     public void Do()
     {
-        SceneManager.LoadScene("Level2");
+        SceneManager.LoadScene(levelToLoad);
     }
 }

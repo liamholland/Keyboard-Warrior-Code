@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Computer : MonoBehaviour, IObject
 {
@@ -24,8 +25,9 @@ public class Computer : MonoBehaviour, IObject
 
     public bool ShakeCameraOnInteract => !computerUI.GetBool("computing");
 
-    private bool canInteract = true;    //used to disable interactions when typing
+    private bool playerTyping = false;    //used to disable interactions when typing
     private string codedChars = "!@#*&10";  //the coded characters
+    private bool decoded = false;   //has the computer been decoded
 
     void Start()
     {
@@ -36,11 +38,10 @@ public class Computer : MonoBehaviour, IObject
     {
         inputField.enabled = keyboard.KeyboardAvailable;    //can only type if you have a keyboard
 
-        //stop the coroutine if the player has met the required level
-        if (keyboard.Level >= levelRequired)
+        //stop the coroutine if the player has met the required level and has not decoded this computer
+        if (keyboard.Level >= levelRequired && Vector2.Distance(transform.position, keyboard.transform.position) < 4f)
         {
-            StopCoroutine(RefreshCodedCharacters());
-            passCodeLabel.text = passCode;
+            decoded = true;
         }
 
         //if the interaction with the computer is ending
@@ -54,13 +55,13 @@ public class Computer : MonoBehaviour, IObject
     //enable interactions with the computer
     public void EnableInteract()
     {
-        canInteract = true;
+        playerTyping = false;
     }
 
     //disable interactions with the computer
     public void DisableInteract()
     {
-        canInteract = false;
+        playerTyping = true;
     }
 
     //check the pass code
@@ -70,6 +71,10 @@ public class Computer : MonoBehaviour, IObject
         if (inputField.text == passCode)
         {
             PassCodeCorrect();
+            inputField.textComponent.color = Color.green;
+        }
+        else{
+            inputField.textComponent.color = Color.red;
         }
     }
 
@@ -82,12 +87,17 @@ public class Computer : MonoBehaviour, IObject
     //interaction
     public void Do()
     {
-        if (!canInteract) return;
+        if (playerTyping) return;   //do nothing while the player is typing
+        
+        //make the input field blank
+        inputField.textComponent.color = Color.black;
+        inputField.text = "";
 
         AddEventListeners();    //add event listeners
 
         //display the required level
         levelRequiredText.text = keyboard.FormatLevel(levelRequired) + " Required";
+
 
         //if computing = true (in the computer UI), set it to false and vice versa
         computerUI.SetBool("computing", !computerUI.GetBool("computing"));
@@ -111,12 +121,14 @@ public class Computer : MonoBehaviour, IObject
     //coroutine to repeatedly create a code above the computer
     private IEnumerator RefreshCodedCharacters()
     {
-        while(true){
+        //while the passcode is not decoded
+        while(!decoded){
             string codedPassCode = "";
 
             //create a random code
             for (int i = 0; i < Random.Range(4, 8); i++)
             {
+                //add random characters
                 codedPassCode += codedChars[Random.Range(0, codedChars.Length - 1)];
             }
 
@@ -124,5 +136,39 @@ public class Computer : MonoBehaviour, IObject
 
             yield return new WaitForSeconds(0.7f);  //wait then repeat
         }
+
+        //decode the passcode
+        StartCoroutine(DecodePassCodeText());
+    }
+
+    //coroutine for the decoding animation
+    private IEnumerator DecodePassCodeText(){
+        string decodedPassCode = "";
+
+        //go through each character in the passcode
+        foreach(char c in passCode){
+            decodedPassCode += c;
+
+            string codedPassCode = "";
+
+            //decoding each character takes between 2 and 4 attempts for each character
+            for(int i = 0; i < Random.Range(2, 5); i++){
+                codedPassCode = ""; //reset the coded section
+
+                //for each of the remaining coded characters
+                for (int j = 0; j < passCode.Length - decodedPassCode.Length; j++)
+                {
+                    //pad out the code with some coded characters
+                    codedPassCode += codedChars[Random.Range(0, codedChars.Length - 1)];
+                }
+
+                //set the text of the passcode
+                passCodeLabel.text = decodedPassCode + codedPassCode;
+
+                yield return new WaitForSeconds(0.05f);
+            }
+        }
+
+        passCodeLabel.text = passCode;
     }
 }

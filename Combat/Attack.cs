@@ -31,7 +31,9 @@ public class Attack : MonoBehaviour
 
     //play the windup animation
     public void WindUpAnimation(){
-        animator.SetBool(windupAnimationCondition, true);
+        if(useWindUpAnimation){
+            animator.SetBool(windupAnimationCondition, true);
+        }
     }
 
     //do the actual attack

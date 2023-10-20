@@ -47,7 +47,7 @@ public class CameraController : MonoBehaviour
         }
 
         //move the camera down if the down button is held
-        if(Input.GetAxisRaw("Vertical") < 0){
+        if(Input.GetAxisRaw("Vertical") < 0 && !Controller.interacting){
             yOffset = lookDownYOffset;
         }
         else{
