@@ -107,7 +107,7 @@ public class Enemy : MonoBehaviour
         //find a point an acceptable distance from the target (greater than the attack range)
 
         //get the direction to go
-        Vector2 direction = (toPoint - (Vector2)transform.position).normalized * -1;
+        Vector2 direction = (toPoint - (Vector2)transform.position).normalized * (transform.localScale.x * -1);
 
         int nextDist = 1; //the distance to check if there is a valid point
 
@@ -129,7 +129,7 @@ public class Enemy : MonoBehaviour
         //if there is an obstacle in the way
         if(scan.collider != null){
             //change the point to a little bit away from whatever obstacle was hit
-            pointToGoTo = new Vector2(scan.point.x - 3f, scan.point.y);
+            pointToGoTo = (Vector2)transform.position + ((scan.point - (Vector2)transform.position).normalized * (Vector2.Distance(transform.position, scan.point) - 2f));
         }
 
         //return the point
