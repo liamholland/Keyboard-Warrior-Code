@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Controller : MonoBehaviour
 {
+    public static Controller PlayerInstance { get; private set; }   //the singleton instance of the player
+
     [Header("-- Movement --")]
     public bool airControl; //can the player move in the air
     public bool canDash;    //can the player dash
@@ -57,6 +59,15 @@ public class Controller : MonoBehaviour
     private Vector2 lastGroundedPosition;   //the last place the player was on the ground
 
     private void Awake(){
+        //destroy this instance if it is not the singleton instance
+        if(PlayerInstance != null && PlayerInstance != this){
+            Destroy(gameObject);
+        }
+        else{
+            PlayerInstance = this;  //otherwise set the singleton instance
+            DontDestroyOnLoad(gameObject);  //dont destroy the player when loading
+        }
+
         //get a reference to the camera controller
         cameraController = Camera.main.GetComponent<CameraController>();
 
