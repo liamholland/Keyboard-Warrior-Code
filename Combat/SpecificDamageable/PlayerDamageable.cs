@@ -8,11 +8,16 @@ public class PlayerDamageable : Damageable
 {
     public TextMeshProUGUI healthBarText;   //the text field that displays the health
     [SerializeField] private float iFrameTime;  //the amount of time the player is invulnerable for after taking damage
+
     private SpriteRenderer playerRenderer;  //reference to the player's sprite renderer
     private bool invulnerable = false;   //is the player invulnerable
+    private int fullHealth; //the health the player has at max health
+
 
     private void Start(){
         playerRenderer = gameObject.GetComponent<SpriteRenderer>();
+
+        fullHealth = health;    //record the player's max health
 
         RefreshHealthBar();
     }
@@ -43,6 +48,15 @@ public class PlayerDamageable : Damageable
         }
 
         healthBarText.text = healthDisplay;
+    }
+
+    /// <summary>
+    /// Heal the player
+    /// </summary>
+    public void HealPlayer(){
+        health = fullHealth;    //player is back to full health
+
+        RefreshHealthBar(); //refresh the health bar
     }
 
     //apply a stun affect to the player
