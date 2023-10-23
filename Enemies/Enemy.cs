@@ -15,12 +15,13 @@ public class Enemy : MonoBehaviour
     public Vector2[] patrolPoints;  //points the enemy will patrol on when it is not hostile
     [SerializeField] private float passiveMovespeed;
     [SerializeField] private float hostileMovespeed;
+    public bool getClose = true;    //should the enemy get close to attack
+    public LayerMask whatIsObstacle;  //layermask to identify the ground for pathfinding
     public bool canMoveIn2D = false;    //can the enemy move in 2 dimensions
     [Header("If canMoveIn2D = true")]
     [SerializeField] private float pathScanningInterval;    //the amount the enemy scans will move left and right when it detects a collision#
     [SerializeField] private float spaceForEnemy;   //the size of a space the pathfinding needs to look for
     [SerializeField] [Range(0.5f, 2f)] private float maxPathFindingTime;  //the upper limit on the amount of time that can be spent pathfinding
-    public LayerMask whatIsObstacle;  //layermask to identify the ground for pathfinding
 
 
     [Header("-- Combat --")]
@@ -101,7 +102,38 @@ public class Enemy : MonoBehaviour
 
     //path finding for enemies which can only move left and right on the ground
     private Vector2 FindPathX(Vector2 toPoint){
-        return toPoint;
+        if(getClose) return toPoint;    //just go towards the point if the enemy needs to get close
+
+        //find a point an acceptable distance from the target (greater than the attack range)
+
+        //get the direction to go
+        Vector2 direction = (toPoint - (Vector2)transform.position).normalized * -1;
+
+        int nextDist = 1; //the distance to check if there is a valid point
+
+        Vector2 pointToGoTo = transform.position;    //the point to go to
+
+        //while the target is too close
+        while(!TargetWithinAttackRange(pointToGoTo)){
+            //the potential point to travel to
+            pointToGoTo = (Vector2)transform.position + (direction * nextDist);
+
+            nextDist += nextDist;   //compounds the longer a point is not found
+        }
+
+        //a potential point has been found
+
+        //scan in the direction of the potential point
+        RaycastHit2D scan = Physics2D.Raycast(transform.position, direction, Vector2.Distance(transform.position, pointToGoTo), whatIsObstacle);
+
+        //if there is an obstacle in the way
+        if(scan.collider != null){
+            //change the point to a little bit away from whatever obstacle was hit
+            pointToGoTo = new Vector2(scan.point.x - 3f, scan.point.y);
+        }
+
+        //return the point
+        return pointToGoTo;
     }
 
 
@@ -207,7 +239,12 @@ public class Enemy : MonoBehaviour
 
     //is the target within the attack range of the enemy
     private bool TargetWithinAttackRange(Vector2 targetPosition){
-        return Vector2.Distance(transform.position, targetPosition) < mainAttack.AttackRange;
+        if(getClose){
+            return Vector2.Distance(transform.position, targetPosition) < mainAttack.AttackRange;
+        }
+        else{
+            return Vector2.Distance(transform.position, targetPosition) > mainAttack.AttackRange;
+        }
     }
 
     //default implementation of a passive action
@@ -221,7 +258,7 @@ public class Enemy : MonoBehaviour
         {
             while(true){
                 //set the current target to the point or a temporary point to avoid obstacles
-                currentTarget = canMoveIn2D ? FindPathXY(point) : FindPathX(point);
+                currentTarget = canMoveIn2D ? FindPathXY(point) : point;
 
                 //if the pathfinding returned a temporary point, travel to that point and try again
                 if(Equals(point, currentTarget)){

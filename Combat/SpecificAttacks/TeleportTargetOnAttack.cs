@@ -17,8 +17,5 @@ public class TeleportTargetOnAttack : Attack
     private void OnDrawGizmos(){
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(teleportLocation, 1f);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, AttackRange);
     }
 }
