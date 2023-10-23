@@ -10,10 +10,12 @@ public class Computer : MonoBehaviour, IObject
     public KeyboardController keyboard;
 
     [SerializeField] private int levelRequired; //the level required to decode the pass code
+    [SerializeField] private string whatComputerDoes;   //what appears as the protocol on the computer UI
     [SerializeField] private string passCode;   //the pass code for this computer
     [SerializeField] private TMP_InputField inputField; //the input field to watch
     [SerializeField] private TextMeshProUGUI passCodeLabel; //the label that displays the code for the computer
     [SerializeField] private TextMeshProUGUI levelRequiredText; //label to display the required level for this computer
+    [SerializeField] private TextMeshProUGUI protocolText;  //label to give the player a clue as to what this computer does
 
     public string Instructions => "Press E to Use Computer";
 
@@ -98,6 +100,8 @@ public class Computer : MonoBehaviour, IObject
         //display the required level
         levelRequiredText.text = keyboard.FormatLevel(levelRequired) + " Required";
 
+        //display the protocol
+        protocolText.text = "Protocol: " + whatComputerDoes;
 
         //if computing = true (in the computer UI), set it to false and vice versa
         computerUI.SetBool("computing", !computerUI.GetBool("computing"));

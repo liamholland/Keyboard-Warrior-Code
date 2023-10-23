@@ -31,39 +31,48 @@ public class Enemy : MonoBehaviour
     public Animator enemyAnimator;  //the animator of the enemy
 
     private bool passiveMoveRoutineActive = false;
-    private Vector2 currentTarget;
     private float currentMoveSpeed;
     private bool isAttacking = false;
+    private Vector2 currentTarget;
+    public Vector2 EnemyTarget {
+        set{
+            currentTarget = value;
+        }
+    }
 
     void Update(){
         PointTowardsTarget();
-        
-        if(!isAttacking){
-            //move the enemy towards a target
-            transform.position = Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime);
-        }
+        //move the enemy towards a target
+        transform.position = Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime);
+        // if(gameObject.name.Equals("FlyingEnemy6") && isAttacking){
+        //     Debug.Log(Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime));
+        // }
     }
 
     void FixedUpdate()
     {
+        if(isAttacking) return;
+
         if (isHostile)
         {
-            //set the target to the player
-            currentTarget = canMoveIn2D ? FindPathXY(player.transform.position) : FindPathX(player.transform.position);
+            StopCoroutine(Passive());
 
-            //if the player has escaped the enemy
-            if(Vector2.Distance(transform.position, currentTarget) > playerEscapeRange){
-                isHostile = false;
-                return;
-            }
-
-
-            if(TargetWithinAttackRange(player.transform.position) && !isAttacking){
+            if(TargetWithinAttackRange(player.transform.position)){
+                isAttacking = true;
                 StartCoroutine(Attack());
             }
-            else if(!isAttacking){
+            else{
+                //set the target to the player
+                currentTarget = canMoveIn2D ? FindPathXY(player.transform.position) : FindPathX(player.transform.position);
+
                 //set the current move speed to hostileMoveSpeed
                 currentMoveSpeed = hostileMovespeed;
+
+                //if the player has escaped the enemy
+                if(Vector2.Distance(transform.position, currentTarget) > playerEscapeRange){
+                    isHostile = false;
+                    return;
+                }
             }
         }
         else
@@ -161,16 +170,20 @@ public class Enemy : MonoBehaviour
         //the enemy is attacking
         isAttacking = true;
 
-        //stop the enemy
-        currentMoveSpeed = mainAttack.AttackMoveSpeed;
+        //set the move speed
+        currentMoveSpeed = mainAttack.WindUpMoveSpeed;
 
         mainAttack.WindUpAnimation();   //run the windup animation
 
         //wind up on the enemies attack
         yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Attack"));
 
+        // Debug.Log("Doing attack");
         //find all the player colliders in range of the enemy after the wind up
         Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, mainAttack.AttackRange, whatIsPlayer);
+
+        //set the move speed
+        currentMoveSpeed = mainAttack.AttackMoveSpeed;
 
         //execute the attack
         mainAttack.DoAttack(colliderInRange);
@@ -178,11 +191,18 @@ public class Enemy : MonoBehaviour
         //wait until the animation for the attack is done
         yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
 
+        currentMoveSpeed = mainAttack.CooldownMoveSpeed;
+
+        // Debug.Log("Cooldown");
+        yield return new WaitForSeconds(mainAttack.AttackCoolDown);
+
         //reset the move speed to be hostile
         currentMoveSpeed = hostileMovespeed;
+        // Debug.Log("move speed back to hostile");
 
         //the enemy is no longer attacking
         isAttacking = false;
+        // Debug.Log("Attack Finished");
     }
 
     //is the target within the attack range of the enemy
@@ -226,7 +246,7 @@ public class Enemy : MonoBehaviour
             Gizmos.DrawWireSphere(point, 0.4f);
         }
 
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.cyan;
         Gizmos.DrawLine(transform.position, currentTarget);
 
         Gizmos.color = Color.green;
