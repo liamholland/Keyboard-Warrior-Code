@@ -1,35 +1,62 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerDamageable : Damageable
 {
-    [Range(0f, 0.5f)] [SerializeField] private float stunTime;  //the amount of time the player is stunned for
+    [SerializeField] private float iFrameTime;  //the amount of time the player is invulnerable for after taking damage
+    private SpriteRenderer playerRenderer;  //reference to the player's sprite renderer
+    private bool invulnerable = false;   //is the player invulnerable
+
+    private void Start(){
+        playerRenderer = gameObject.GetComponent<SpriteRenderer>();
+    }
 
     //when the player takes damage
     public override void TakeDamage(int damage)
     {
-        health -= damage;   //take damage
+        //if can take damage
+        if(!invulnerable){
+            health -= damage;   //take damage
+        }
 
         if(health <= 0){
-            gameObject.SetActive(false);    //disable the player when made inactive
+            //reload the current scene
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
         else{
-            Debug.Log(health);
-
-            //if there is a stun, apply the affect
-            if(stunTime > 0f){
-                StartCoroutine(Stun());
+            if(!invulnerable){
+                Debug.Log(health);
+                StartCoroutine(Invulnerable());
             }
         }
     }
 
     //apply a stun affect to the player
-    private IEnumerator Stun(){
-        Controller.interacting = true;
+    private IEnumerator Invulnerable(){
+        invulnerable = true;
 
-        yield return new WaitForSeconds(stunTime);
+        float elapsedTime = 0f;
 
-        Controller.interacting = false;
+        Color playerColor = playerRenderer.color;
+
+        //flash the player
+        while(elapsedTime <= iFrameTime){
+
+            playerRenderer.color = new Color(0, 0, 0, 1);
+
+            yield return new WaitForSeconds(0.1f);
+
+            playerRenderer.color = playerColor;
+
+            yield return new WaitForSeconds(0.1f);
+
+            elapsedTime += Time.fixedDeltaTime;
+        }
+
+        playerRenderer.color = playerColor;
+
+        invulnerable = false;
     }
 }

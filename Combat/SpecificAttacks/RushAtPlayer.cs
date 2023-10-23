@@ -61,8 +61,13 @@ public class RushAtPlayer : Attack
         //     distanceToReachTarget += 1f;
         // }
 
-        yield return new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.3f);
+        yield return new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.3f ||
+                                    Vector2.Distance(player.transform.position, transform.position) < AttackRange);
         // Debug.Log("Reached Target");
+
+        if(Vector2.Distance(player.transform.position, transform.position) < AttackRange){
+            player.GetComponent<Damageable>().TakeDamage(AttackDamage);
+        }
 
         animator.SetBool(attackAnimationCondition, false);
         // Debug.Log("Done Dashing");
