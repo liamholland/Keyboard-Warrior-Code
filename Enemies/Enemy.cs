@@ -107,7 +107,7 @@ public class Enemy : MonoBehaviour
         //find a point an acceptable distance from the target (greater than the attack range)
 
         //get the direction to go
-        Vector2 direction = new Vector2((toPoint.x - transform.position.x) * -1, transform.position.y);
+        Vector2 direction = new Vector2((toPoint.x - transform.position.x) * -1, 0f);
 
         int nextDist = 1; //the distance to check if there is a valid point
 

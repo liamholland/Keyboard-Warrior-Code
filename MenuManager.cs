@@ -1,12 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
+    public GameObject changeResMenu;    //the menu to change the resolution of the game
+    public TextMeshProUGUI versionText; //the text displaying the version of the build
+
     private void Start(){
-        DontDestroyOnLoad(gameObject);  //persist the menu manager
+        versionText.text = "V" + Application.version;   //set the version text
+        SetRes720();    //set the resolution to 720p
     }
 
     /// <summary>
@@ -21,5 +26,29 @@ public class MenuManager : MonoBehaviour
     /// </summary>
     public void QuitGame(){
         Application.Quit();
+    }
+
+    /// <summary>
+    /// Set the resolution of the window to 1280x720
+    /// </summary>
+    public void SetRes720(){
+        Screen.SetResolution(1280, 720, false);
+        HideResChangeMenu();
+    }
+
+    /// <summary>
+    /// Set the resolution of the window to 1920x1080
+    /// </summary>
+    public void SetRes1080(){
+        Screen.SetResolution(1920, 1080, false);
+        HideResChangeMenu();
+    }
+
+    public void ShowResChangeMenu(){
+        changeResMenu.SetActive(true);
+    }
+
+    public void HideResChangeMenu(){
+        changeResMenu.SetActive(false);
     }
 }

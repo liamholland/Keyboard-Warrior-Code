@@ -5,6 +5,7 @@ using UnityEngine;
 public class ShootProjectile : Attack
 {
     public GameObject projectile;   //the project to shoot
+    public GameObject player;   //reference to the player
     [SerializeField] private float projectileSpeed; //the speed to shoot the projectile at
 
     public override void DoAttack(Collider2D colliderToDamage)
@@ -14,7 +15,7 @@ public class ShootProjectile : Attack
         }
 
         //point towards target
-        transform.localScale = new Vector2(transform.localScale.x * -1, transform.localScale.y);
+        transform.localScale = new Vector2((player.transform.position - transform.position).normalized.x, transform.localScale.y);
 
         //shoot a projectile
         GameObject shotProjectile = Instantiate(projectile, transform.position, Quaternion.identity);

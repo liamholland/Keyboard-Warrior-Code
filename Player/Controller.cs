@@ -66,11 +66,7 @@ public class Controller : MonoBehaviour
         //get a reference to the rigid body
         playerRigid = GetComponent<Rigidbody2D>();
     }
-
-    void Start(){
-        Screen.SetResolution(1280, 720, false);
-    }
-
+    
     void Update(){
         //make jump available when the key is released
         if(Input.GetButtonUp("Jump")){
