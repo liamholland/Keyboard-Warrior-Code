@@ -56,6 +56,7 @@ public class Controller : MonoBehaviour
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
     private Vector2 lastGroundedPosition;   //the last place the player was on the ground
+    public static PlayerContext context;
 
     private void Awake(){
         //get a reference to the camera controller
@@ -66,6 +67,17 @@ public class Controller : MonoBehaviour
 
         //get a reference to the rigid body
         playerRigid = GetComponent<Rigidbody2D>();
+    }
+
+    private void Start(){
+        if(context != null){
+            airControl = context.airControl;
+            canDash = context.canDash;
+            keyboardController.KeyboardAvailable = context.available;
+            keyboardController.longCableUnlocked = context.longCableUnlocked;
+            keyboardController.Level = context.level;
+            transform.position = context.position;
+        }
     }
 
     void Update(){
@@ -261,29 +273,6 @@ public class Controller : MonoBehaviour
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.transform.position, GCRadius, whatIsGround);
         return colliders.Length > 0;
-    }
-
-    //cheating on making a singleton
-    /// <summary>
-    /// Set the context of the player
-    /// Sets
-    ///     (Player)
-    ///     airControl
-    ///     canDash
-    ///     
-    ///     (Keyboard)
-    ///     available
-    ///     longCableUnlocked
-    ///     level
-    /// </summary>
-    /// <param name="context">An instance of the PlayerContext class containing the relevant settings</param>
-    public void SetContext(PlayerContext context){
-        airControl = context.airControl;
-        canDash = context.canDash;
-
-        keyboardController.KeyboardAvailable = context.available;
-        keyboardController.longCableUnlocked = context.longCableUnlocked;
-        keyboardController.Level = context.level;
     }
 
     void OnDrawGizmos() {

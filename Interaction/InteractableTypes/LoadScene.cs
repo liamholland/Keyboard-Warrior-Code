@@ -19,10 +19,6 @@ public class LoadScene : MonoBehaviour, IObject
     [SerializeField] private string whereTo;    //name of the area to show in instructions
     [SerializeField] private Vector2 atPosition;    //the position to send the player to upon load
 
-    private void Start(){
-        DontDestroyOnLoad(this);
-    }
-
     public void Do()
     {
         Controller player = GameObject.Find("Player").GetComponent<Controller>();
@@ -35,14 +31,11 @@ public class LoadScene : MonoBehaviour, IObject
         context.available = keyboard.KeyboardAvailable;
         context.longCableUnlocked = keyboard.longCableUnlocked;
         context.level = keyboard.Level;
+        context.position = atPosition;
         
+        Controller.context = context;
+
         //load the scene
         SceneManager.LoadScene(levelToLoad);
-
-        player = GameObject.Find("Player").GetComponent<Controller>();
-        player.gameObject.transform.position = atPosition;
-        player.SetContext(context);
-
-        Destroy(gameObject);
     }
 }
