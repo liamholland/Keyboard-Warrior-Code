@@ -12,7 +12,6 @@ public class KeyboardController : MonoBehaviour
     public bool longCableUnlocked = false;  //the longer cable allows you to throw the keyboard to use it as a grapple and a long range weapon
     
     //public accessor for available
-    [HideInInspector]
     public bool KeyboardAvailable{
         get => available;
         set {

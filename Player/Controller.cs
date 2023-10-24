@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Controller : MonoBehaviour
 {
     [Header("-- Movement --")]
     public bool airControl; //can the player move in the air
-    public bool canDash;    //can the player dash
     [SerializeField] private float maxMoveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float jumpHoldDuration;
@@ -16,6 +16,7 @@ public class Controller : MonoBehaviour
 
 
     [Header("-- Dash --")]
+    public bool canDash;    //can the player dash
     [Range(25f, 50f)] [SerializeField] private float dashSpeed;
     [Range(0f, 10f)] [SerializeField] private float dashCoolDown;
     [Range(0f, 0.5f)] [SerializeField] private float dashTime;  //the amount of time the dash lasts for
@@ -66,7 +67,7 @@ public class Controller : MonoBehaviour
         //get a reference to the rigid body
         playerRigid = GetComponent<Rigidbody2D>();
     }
-    
+
     void Update(){
         //make jump available when the key is released
         if(Input.GetButtonUp("Jump")){
@@ -260,6 +261,29 @@ public class Controller : MonoBehaviour
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.transform.position, GCRadius, whatIsGround);
         return colliders.Length > 0;
+    }
+
+    //cheating on making a singleton
+    /// <summary>
+    /// Set the context of the player
+    /// Sets
+    ///     (Player)
+    ///     airControl
+    ///     canDash
+    ///     
+    ///     (Keyboard)
+    ///     available
+    ///     longCableUnlocked
+    ///     level
+    /// </summary>
+    /// <param name="context">An instance of the PlayerContext class containing the relevant settings</param>
+    public void SetContext(PlayerContext context){
+        airControl = context.airControl;
+        canDash = context.canDash;
+
+        keyboardController.KeyboardAvailable = context.available;
+        keyboardController.longCableUnlocked = context.longCableUnlocked;
+        keyboardController.Level = context.level;
     }
 
     void OnDrawGizmos() {

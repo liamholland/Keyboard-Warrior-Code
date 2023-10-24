@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class LoadScene : MonoBehaviour, IObject
 {
-    public string Instructions => "Press E to Continue";
+    public string Instructions => "Press E to Travel " + whereTo;
 
     public bool ShowInstructions => true;
 
@@ -16,9 +16,33 @@ public class LoadScene : MonoBehaviour, IObject
     public string CustomKeyCode => "";
 
     [SerializeField] private string levelToLoad;    //name of the level to load
+    [SerializeField] private string whereTo;    //name of the area to show in instructions
+    [SerializeField] private Vector2 atPosition;    //the position to send the player to upon load
+
+    private void Start(){
+        DontDestroyOnLoad(this);
+    }
 
     public void Do()
     {
+        Controller player = GameObject.Find("Player").GetComponent<Controller>();
+        KeyboardController keyboard = player.keyboardController;
+
+        //create a context
+        PlayerContext context = (PlayerContext)ScriptableObject.CreateInstance("PlayerContext");
+        context.airControl = player.airControl;
+        context.canDash = player.canDash;
+        context.available = keyboard.KeyboardAvailable;
+        context.longCableUnlocked = keyboard.longCableUnlocked;
+        context.level = keyboard.Level;
+        
+        //load the scene
         SceneManager.LoadScene(levelToLoad);
+
+        player = GameObject.Find("Player").GetComponent<Controller>();
+        player.gameObject.transform.position = atPosition;
+        player.SetContext(context);
+
+        Destroy(gameObject);
     }
 }
