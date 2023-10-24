@@ -25,5 +25,8 @@ public class OneTimeOpenDoor : MonoBehaviour, IDoor
     {
         //animate the door opening
         doorAnimator.SetBool("Unlocked", true);
+
+        //add it to the player context
+        PlayerContext.AddDoorToContext(gameObject);
     }
 }

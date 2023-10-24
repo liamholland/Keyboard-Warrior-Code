@@ -39,7 +39,7 @@ public class EnemyDamageable : Damageable
 
             //make all conversations available
             foreach(Conversation c in conversationsToMakeAvailableOnDeath){
-                c.isAvailable = true;
+                c.IsAvailable = true;
             }
 
             Destroy(gameObject);

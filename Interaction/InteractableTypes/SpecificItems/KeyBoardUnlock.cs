@@ -27,11 +27,11 @@ public class KeyBoardUnlock : MonoBehaviour, IObject
         
         //make conversations available
         foreach(Conversation c in conversationToMakeAvailable){
-            c.isAvailable = true;
+            c.IsAvailable = true;
         }
 
         foreach(Conversation c in conversationsToMakeUnavailable){
-            c.isAvailable = false;
+            c.IsAvailable = false;
         }
 
         doorToOpen.Open();

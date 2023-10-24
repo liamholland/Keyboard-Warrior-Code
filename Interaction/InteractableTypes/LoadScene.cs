@@ -21,6 +21,7 @@ public class LoadScene : MonoBehaviour, IObject
 
     public void Do()
     {
+        //get a reference to the player and the keyboard
         Controller player = GameObject.Find("Player").GetComponent<Controller>();
         KeyboardController keyboard = player.keyboardController;
 
@@ -33,7 +34,7 @@ public class LoadScene : MonoBehaviour, IObject
         context.level = keyboard.Level;
         context.position = atPosition;
         
-        Controller.context = context;
+        Controller.context = context;   //set the player context
 
         //load the scene
         SceneManager.LoadScene(levelToLoad);

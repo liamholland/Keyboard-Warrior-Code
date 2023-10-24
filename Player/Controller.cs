@@ -56,7 +56,8 @@ public class Controller : MonoBehaviour
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
     private Vector2 lastGroundedPosition;   //the last place the player was on the ground
-    public static PlayerContext context;
+
+    public static PlayerContext context;    //the context to load the player with
 
     private void Awake(){
         //get a reference to the camera controller
@@ -70,13 +71,19 @@ public class Controller : MonoBehaviour
     }
 
     private void Start(){
+        //set the player context if there is one
         if(context != null){
+            //set player values
             airControl = context.airControl;
             canDash = context.canDash;
             keyboardController.KeyboardAvailable = context.available;
             keyboardController.longCableUnlocked = context.longCableUnlocked;
             keyboardController.Level = context.level;
+
+            //set player position
             transform.position = context.position;
+
+            PlayerContext.ApplyContextToObjects();
         }
     }
 

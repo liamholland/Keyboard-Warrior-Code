@@ -29,7 +29,7 @@ public class Computer : MonoBehaviour, IObject
 
     private bool playerTyping = false;    //used to disable interactions when typing
     private string codedChars = "!@#*&10";  //the coded characters
-    private bool decoded = false;   //has the computer been decoded
+    public bool decoded = false;   //has the computer been decoded
 
     void Start()
     {
@@ -73,6 +73,10 @@ public class Computer : MonoBehaviour, IObject
         if (inputField.text == passCode)
         {
             PassCodeCorrect();
+
+            //add to the player context
+            PlayerContext.AddComputerToContext(gameObject);
+
             inputField.textComponent.color = Color.green;
         }
         else{

@@ -29,8 +29,12 @@ public class Npc : MonoBehaviour, IObject
     private void Start()
     {
         //make each conversation available at the start if it needs to be
-        foreach (Conversation c in conversations)
-            c.isAvailable = c.availableAtStart;
+        foreach (Conversation c in conversations){
+            if(!(PlayerContext.conversationsToMakeAvailable.Contains(c.name) ||
+                PlayerContext.conversationsToMakeUnavailable.Contains(c.name))){
+                    c.IsAvailable = c.availableAtStart;
+                }
+        }
     }
 
     public string Instructions
@@ -72,7 +76,7 @@ public class Npc : MonoBehaviour, IObject
             //for each conversation
             foreach (Conversation c in conversations)
             {
-                if (c.isAvailable)
+                if (c.IsAvailable)
                 {
                     IsTalking = true;
                     currentConvo = c;
@@ -106,7 +110,7 @@ public class Npc : MonoBehaviour, IObject
                 c.DoAction();
             }
 
-            c.isAvailable = false;  //mark the conversation as unavailable
+            c.IsAvailable = false;  //mark the conversation as unavailable
 
             IsTalking = false;  //the npc is no longer talking
 
