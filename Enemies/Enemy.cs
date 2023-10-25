@@ -34,7 +34,9 @@ public class Enemy : MonoBehaviour
     private bool passiveMoveRoutineActive = false;
     private float currentMoveSpeed;
     private bool isAttacking = false;
+    private bool isCooldown = false;
     private Vector2 currentTarget;
+    private Coroutine runningPassive;   //the running passive coroutine
     public Vector2 EnemyTarget {
         set{
             currentTarget = value;
@@ -52,20 +54,15 @@ public class Enemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        if(isAttacking) return;
-
         if (isHostile)
         {
-            StopCoroutine(Passive());
+            StopCoroutine(runningPassive);
 
-            if(TargetWithinAttackRange(player.transform.position)){
+            if(!isAttacking && TargetWithinAttackRange(player.transform.position)){
                 isAttacking = true;
                 StartCoroutine(Attack());
             }
-            else{
-                //set the target to the player
-                currentTarget = canMoveIn2D ? FindPathXY(player.transform.position) : FindPathX(player.transform.position);
-
+            else if(!isAttacking){
                 //set the current move speed to hostileMoveSpeed
                 currentMoveSpeed = hostileMovespeed;
 
@@ -74,6 +71,10 @@ public class Enemy : MonoBehaviour
                     isHostile = false;
                     return;
                 }
+            }
+
+            if(!isAttacking || isCooldown){
+                currentTarget = canMoveIn2D ? FindPathXY(player.transform.position) : FindPathX(player.transform.position);
             }
         }
         else
@@ -84,7 +85,7 @@ public class Enemy : MonoBehaviour
             //otherwise it should do its passive behaviour
             if (!passiveMoveRoutineActive)
             {
-                StartCoroutine(Passive());
+                runningPassive = StartCoroutine(Passive());
             }
         }
     }
@@ -106,8 +107,12 @@ public class Enemy : MonoBehaviour
 
         //find a point an acceptable distance from the target (greater than the attack range)
 
-        //get the direction to go
-        Vector2 direction = new Vector2((toPoint.x - transform.position.x) * -1, 0f);
+        if(TargetWithinAttackRange(toPoint)){
+            return transform.position;
+        }
+
+        //get the direction to go is opposite to the direction of the point
+        Vector2 direction = new Vector2((toPoint.x - transform.position.x) * -1, 0f).normalized;
 
         int nextDist = 1; //the distance to check if there is a valid point
 
@@ -128,8 +133,15 @@ public class Enemy : MonoBehaviour
 
         //if there is an obstacle in the way
         if(scan.collider != null){
+            //get the distance between the target and the enemy
+            //the float constant is an arbitrary value
+            //once the target is within this constant range of the enemy, it will begin to move away from whatever obstacle it is next to
+            float distToPoint = 3f - Vector2.Distance(transform.position, toPoint);
+
             //change the point to a little bit away from whatever obstacle was hit
-            pointToGoTo = (Vector2)transform.position + (direction * (Vector2.Distance(scan.point, transform.position) - 2f));
+            //if the target is within the range of distToPoint (i.e. distToPoint not negative), the enemy has been cornered and should run past the target to escape
+            //so, the point will be the scan point minus 2 plus the inversely proportional distance between the enemy and the target
+            pointToGoTo = (Vector2)transform.position + (direction * (Vector2.Distance(scan.point, transform.position) - (2f + (distToPoint > 0 ? distToPoint : 0f))));
         }
 
         //return the point
@@ -222,19 +234,24 @@ public class Enemy : MonoBehaviour
 
         //wait until the animation for the attack is done
         yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
+        
+        //the enemy is on cooldown
+        isCooldown = true;
+
 
         currentMoveSpeed = mainAttack.CooldownMoveSpeed;
 
         // Debug.Log("Cooldown");
         yield return new WaitForSeconds(mainAttack.AttackCoolDown);
 
+        //the enemy is out of cooldown
+        isCooldown = false;
+
         //reset the move speed to be hostile
         currentMoveSpeed = hostileMovespeed;
-        // Debug.Log("move speed back to hostile");
 
         //the enemy is no longer attacking
         isAttacking = false;
-        // Debug.Log("Attack Finished");
     }
 
     //is the target within the attack range of the enemy
