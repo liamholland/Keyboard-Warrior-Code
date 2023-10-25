@@ -14,13 +14,16 @@ public class PlayerContext : ScriptableObject
     public int level;
 
     [Header("-- Position --")]
-    public Vector2 position;
+    public static Vector2 spawnPosition;
 
     //static context
+    //lists of game object names to find
     public static List<string> openDoors = new List<string>();
     public static List<string> decodedComputers = new List<string>();
+    public static List<string> npcsFinishedInScenes = new List<string>();
     public static List<string> conversationsToMakeAvailable = new List<string>();
     public static List<string> conversationsToMakeUnavailable = new List<string>();
+    public static List<string> levelUpsCollected = new List<string>();
 
     /// <summary>
     /// Add a door which should remain open after the player has opened it
@@ -76,7 +79,42 @@ public class PlayerContext : ScriptableObject
         }
     }
 
+    /// <summary>
+    /// Add a level up which the player has collected to the player context
+    /// </summary>
+    /// <param name="levelUp">The level up game object to add</param>
+    public static void AddLevelUpToContext(GameObject levelUp){
+        if(levelUp.GetComponent<LevelUp>() == null) return; //game object is not a level up
 
+        //add the level up to the context
+        if(!levelUpsCollected.Contains(levelUp.name)){
+            levelUpsCollected.Add(levelUp.name);
+        }
+    }
+
+    public static void AddNpcDoneInSceneToContext(GameObject npc){
+        Npc npcComponent = npc.GetComponent<Npc>();
+        
+        if(npcComponent == null) return; //object is not an npc
+
+        //add the npc to the context
+        if(!npcsFinishedInScenes.Contains(npc.name)){
+            npcsFinishedInScenes.Add(npc.name);
+        }
+        else{
+            return; //avoid removing conversations that are not there
+        }
+
+        //remove the npc's conversations from both lists on the context
+        foreach(Conversation c in npcComponent.conversations){
+            if(conversationsToMakeAvailable.Contains(c.name)){
+                conversationsToMakeAvailable.Remove(c.name);
+            }
+            else if(conversationsToMakeUnavailable.Contains(c.name)){
+                conversationsToMakeUnavailable.Remove(c.name);
+            }
+        }
+    }
 
     /// <summary>
     /// Apply the player context to objects recorded in lists
@@ -100,18 +138,32 @@ public class PlayerContext : ScriptableObject
         
         GameObject[] npcs = GameObject.FindGameObjectsWithTag("Npc");
 
+        //for each npc in the scene
         foreach(GameObject npc in npcs){
-            Npc npcComponent = npc.GetComponent<Npc>();
-            
-            foreach(Conversation c in npcComponent.conversations){
-                if(conversationsToMakeAvailable.Contains(c.name)){
-                    Debug.Log("Match found");
-                    c.IsAvailable = true;
+            //if the npc is done in this scene
+            if(npcsFinishedInScenes.Contains(npc.name)){
+                npc.SetActive(false);  //remove it from the scene
+            }
+            else{
+                //otherwise get its npc component
+                Npc npcComponent = npc.GetComponent<Npc>();
+                
+                //for each conversation it has, apply the required availability
+                foreach(Conversation c in npcComponent.conversations){
+                    if(conversationsToMakeAvailable.Contains(c.name)){
+                        c.IsAvailable = true;
+                    }
+                    else if(conversationsToMakeUnavailable.Contains(c.name)){
+                        c.IsAvailable = false;
+                    }
                 }
-                else if(conversationsToMakeUnavailable.Contains(c.name)){
-                    Debug.Log("Match found");
-                    c.IsAvailable = false;
-                }
+            }
+        }
+
+        foreach(string levelUpName in levelUpsCollected){
+            GameObject levelUp = GameObject.Find(levelUpName);
+            if(levelUp != null){
+                levelUp.SetActive(false);   //remove it from the scene
             }
         }
     }

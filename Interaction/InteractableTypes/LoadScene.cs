@@ -32,7 +32,8 @@ public class LoadScene : MonoBehaviour, IObject
         context.available = keyboard.KeyboardAvailable;
         context.longCableUnlocked = keyboard.longCableUnlocked;
         context.level = keyboard.Level;
-        context.position = atPosition;
+        
+        PlayerContext.spawnPosition = atPosition;
         
         Controller.context = context;   //set the player context
 

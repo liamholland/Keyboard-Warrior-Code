@@ -41,7 +41,7 @@ public class Controller : MonoBehaviour
 
     [Header("-- Other --")]
     public KeyboardController keyboardController; //reference to the keyboard controller
-    [SerializeField] private Animator dialogueBoxAnimator;  //the animator for the dialogueBox
+    [SerializeField] private Animator playerAnimator;   //reference to the player animator
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
     public static bool interacting = false; //is the player interacting with something
 
@@ -56,6 +56,7 @@ public class Controller : MonoBehaviour
     private bool isGrappling = false;   //is the player currently grappling
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
     private Vector2 lastGroundedPosition;   //the last place the player was on the ground
+    private bool maintainMomentum = false;
 
     public static PlayerContext context;    //the context to load the player with
 
@@ -81,7 +82,7 @@ public class Controller : MonoBehaviour
             keyboardController.Level = context.level;
 
             //set player position
-            transform.position = context.position;
+            transform.position = PlayerContext.spawnPosition;
 
             PlayerContext.ApplyContextToObjects();
         }
@@ -100,8 +101,11 @@ public class Controller : MonoBehaviour
 
         //keyboard actions
 
-        //if the player is attacking, the keyboard is not thrown and the keyboard is unlocked
-        if (Input.GetButtonDown("Attack") && !keyboardController.IsThrown && keyboardController.KeyboardAvailable){
+        //if the player is attacking, the keyboard is not thrown and the keyboard is unlocked and the player is not currently in an attack animation
+        if (Input.GetButtonDown("Attack") && 
+            !keyboardController.IsThrown && 
+            keyboardController.KeyboardAvailable &&
+            !playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")){
             
             Attack attack;  //reference to the attack to use
 
@@ -150,12 +154,29 @@ public class Controller : MonoBehaviour
             return;
         }
 
-        bool grounded = CheckIfGrounded();
+        bool grounded = CheckIfGrounded();  //check if the player is grounded
 
-        if(grounded) lastGroundedPosition = transform.position; //save the place where the player was last grounded
+        //if the player is grounded
+        if(grounded){
+            lastGroundedPosition = transform.position; //save the place where the player was last grounded
+            maintainMomentum = false;   //stop maintaining momentum
+        }
 
+        float momentum = Input.GetAxisRaw("Horizontal");    //get the x-axis momentum of the player
+
+        //if the player is in the air and moving
+        if(!grounded && momentum != 0){
+            maintainMomentum = true;    //start maintaining momentum
+        }
+
+        //if the player is in the air and not moving but was moving
+        if(!grounded && momentum == 0 && maintainMomentum){
+            momentum = 0.8f * transform.localScale.x;   //maintain some momentum
+        }
+
+        //move the player if they are grounded or are allowed to move in the air, and they are not at a grapple point
         if ((grounded || airControl) && !atGrapplePoint){
-            playerRigid.velocity = new Vector2(maxMoveSpeed * Input.GetAxisRaw("Horizontal"), playerRigid.velocity.y);   //set the velocity of the player
+            playerRigid.velocity = new Vector2(maxMoveSpeed * momentum, playerRigid.velocity.y);   //set the velocity of the player
         }
 
         //set the last grounded time if the player is allowed to jump
@@ -242,7 +263,7 @@ public class Controller : MonoBehaviour
     }
 
     //grapple ability
-    public IEnumerator grappleToPoint(Vector2 grapplePoint){        
+    public IEnumerator GrappleToPoint(Vector2 grapplePoint){        
         //wait to finish the dash coroutine before starting the grapple one
         if(isDashing) yield return new WaitUntil(() => !isDashing);
         

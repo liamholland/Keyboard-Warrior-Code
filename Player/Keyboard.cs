@@ -30,6 +30,7 @@ public class KeyboardController : MonoBehaviour
 
     [Header("-- Throwing --")]
     public LayerMask whatIsGrapplePoint;    //reference to the grapple point layer
+    public LayerMask whatIsObstacle;    //what is an obstacle to the thrown keyboard
     [Range(1f, 30f)] [SerializeField] private float keyboardThrowForce;  //speed at which the keyboard moves towards the target
     [Range(1f, 30f)] [SerializeField] private float keyboardGrappleRange;
     [Range(1f, 30f)] [SerializeField] private float keyboardThrowAttackRange;
@@ -87,6 +88,7 @@ public class KeyboardController : MonoBehaviour
                     thrown = false; //keyboard is no longer thrown
                     hooked = false; //the keyboard is unhooked because the player has reached it
                     transform.parent = player.transform;  //keyboard's position is affected by the player
+                    player.GetComponent<Animator>().Rebind();
                 }
                 else if(!hooked){
                     target = startPosition; //otherwise set the target to the start position
@@ -123,8 +125,8 @@ public class KeyboardController : MonoBehaviour
     }
 
     void OnTriggerEnter2D(Collider2D other){
-        //if the collision is with the ground
-        if (other.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        //if the keyboard is thrown and the layer of the collider is an obstacle
+        if (IsThrown && (((1 << other.gameObject.layer) & whatIsObstacle) != 0))
         {
             //keyboard has hit the ground - stop coroutines
             StopAllCoroutines();
@@ -135,9 +137,13 @@ public class KeyboardController : MonoBehaviour
 
     //coroutine for throwing the keyboard as a grapple hook
     public IEnumerator ThrowKeyBoard(){
+        Vector2 currPos = transform.position;
+        
         transform.parent = null;   //stop the position of the keyboard being affected by the player
 
         player.GetComponent<Animator>().Rebind();   //prevent the keyboard from being affected by animations
+
+        transform.position = currPos;
 
         target = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
 
@@ -157,15 +163,19 @@ public class KeyboardController : MonoBehaviour
             hooked = true;  //the keyboard is hooked on to a grapple point
 
             //start the coroutine where the player will grapple to the point
-            StartCoroutine(playerController.grappleToPoint(grapplePoint.gameObject.transform.position));
+            StartCoroutine(playerController.GrappleToPoint(grapplePoint.gameObject.transform.position));
         }
     }
 
     //coroutine for a long range attack with a keyboard
     public IEnumerator RangeAttackWithKeyboard(){
+        Vector2 currPos = transform.position;
+        
         transform.parent = null;   //stop the position of the keyboard being affected by the player
 
         player.GetComponent<Animator>().Rebind();   //prevent the keyboard from being affected by animations
+
+        transform.position = currPos;
 
         target = Camera.main.ScreenToWorldPoint(Input.mousePosition);    //get the mouse position
 

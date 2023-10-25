@@ -33,6 +33,19 @@ public class PlayerDamageable : Damageable
         }
 
         if(health <= 0){
+            Controller player = gameObject.GetComponent<Controller>();
+            KeyboardController keyboard = player.keyboardController;
+            
+            //set the context
+            PlayerContext context = (PlayerContext)ScriptableObject.CreateInstance("PlayerContext");
+            context.canDash = player.canDash;
+            context.airControl = player.airControl;
+            context.available = keyboard.KeyboardAvailable;
+            context.longCableUnlocked = keyboard.longCableUnlocked;
+            context.level = keyboard.Level;
+
+            Controller.context = context;
+
             //reload the current scene
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }

@@ -29,11 +29,23 @@ public class ConversationWithAnimatorAction : Conversation
 
     //function for setting a boolean parameter
     private void SetAnimatorBoolParameter(string gameObjectName, string paramName, bool value){
-        //find the animator
-        animator = GameObject.Find(gameObjectName).GetComponent<Animator>();
+        //get the game object
+        GameObject animatorObject = GameObject.Find(gameObjectName);
+        
+        if(animatorObject != null){
+            //find the animator
+            animator = animatorObject.GetComponent<Animator>();
 
-        if(animator != null){
-            animator.SetBool(paramName, value);
+            if(animator != null){
+                animator.SetBool(paramName, value);
+            }
+
+            //check if the object is a door
+            IDoor door = animatorObject.GetComponent<IDoor>();
+            if(door != null && value == true){
+                //add the door to the context if it is and the door is open
+                PlayerContext.AddDoorToContext(animatorObject);
+            }
         }
     }
 

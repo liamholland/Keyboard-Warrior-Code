@@ -27,6 +27,9 @@ public class LevelUp : MonoBehaviour, IObject
             doorToOpen.Open();  //open the door
         }
 
+        //add it to the player context
+        PlayerContext.AddLevelUpToContext(gameObject);
+
         //remove the interactable
         gameObject.SetActive(false);
     }
