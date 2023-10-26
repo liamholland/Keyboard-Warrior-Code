@@ -50,7 +50,7 @@ public class Computer : MonoBehaviour, IObject
         if (computerUI.GetCurrentAnimatorStateInfo(0).IsName("hide"))
         {
             //the player is not interactong with the computer
-            Controller.interacting = false;
+            Controller.isInteracting = false;
         }
     }
 
@@ -111,7 +111,7 @@ public class Computer : MonoBehaviour, IObject
         computerUI.SetBool("computing", !computerUI.GetBool("computing"));
 
         //the player is interacting with the computer
-        Controller.interacting = true;
+        Controller.isInteracting = true;
     }
 
     //method to add the relevent event listeners of this computer and remove all others

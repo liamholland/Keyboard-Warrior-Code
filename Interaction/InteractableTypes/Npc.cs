@@ -19,7 +19,7 @@ public class Npc : MonoBehaviour, IObject
         set {
             isTalking = value;
 
-            Controller.interacting = value;
+            Controller.isInteracting = value;
 
             //set the value of the dialogue box
             dialogueBoxAnimator.SetBool("inConversation", value);
@@ -91,7 +91,7 @@ public class Npc : MonoBehaviour, IObject
             DisplayConversationLine(defaultConversation);
         }
 
-        Controller.interacting = IsTalking;
+        Controller.isInteracting = IsTalking;
     }
 
     //function to display lines from conversations
@@ -108,6 +108,11 @@ public class Npc : MonoBehaviour, IObject
             //if the conversation has an action, execute it when the conversation is finished
             if(c.HasAction){
                 c.DoAction();
+            }
+
+            //if the npc is done in the scene after this conversation, record that in the context
+            if(c.npcDoneInScene){
+                PlayerContext.AddNpcDoneInSceneToContext(gameObject);
             }
 
             c.IsAvailable = false;  //mark the conversation as unavailable

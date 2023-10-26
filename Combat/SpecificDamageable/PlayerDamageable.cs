@@ -9,12 +9,15 @@ public class PlayerDamageable : Damageable
     public TextMeshProUGUI healthBarText;   //the text field that displays the health
     [SerializeField] private float iFrameTime;  //the amount of time the player is invulnerable for after taking damage
 
+    private Animator playerAnimator;   //reference to the player animator
     private SpriteRenderer playerRenderer;  //reference to the player's sprite renderer
     private bool invulnerable = false;   //is the player invulnerable
     private int fullHealth; //the health the player has at max health
 
 
     private void Start(){
+        playerAnimator = gameObject.GetComponent<Animator>();
+    
         playerRenderer = gameObject.GetComponent<SpriteRenderer>();
 
         fullHealth = health;    //record the player's max health
@@ -33,22 +36,39 @@ public class PlayerDamageable : Damageable
         }
 
         if(health <= 0){
-            Controller player = gameObject.GetComponent<Controller>();
-            KeyboardController keyboard = player.keyboardController;
-            
-            //set the context
-            PlayerContext context = (PlayerContext)ScriptableObject.CreateInstance("PlayerContext");
-            context.canDash = player.canDash;
-            context.airControl = player.airControl;
-            context.available = keyboard.KeyboardAvailable;
-            context.longCableUnlocked = keyboard.longCableUnlocked;
-            context.level = keyboard.Level;
+            Controller.isInteracting = true;
 
-            Controller.context = context;
-
-            //reload the current scene
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+            playerAnimator.SetBool("dead", true);
         }
+    }
+
+    /// <summary>
+    /// Reload the current scene with player context
+    /// </summary>
+    public void RetryScene(){
+        Controller player = gameObject.GetComponent<Controller>();
+        KeyboardController keyboard = player.keyboardController;
+        
+        //set the context
+        PlayerContext context = (PlayerContext)ScriptableObject.CreateInstance("PlayerContext");
+        context.canDash = player.canDash;
+        context.airControl = player.airControl;
+        context.available = keyboard.KeyboardAvailable;
+        context.longCableUnlocked = keyboard.longCableUnlocked;
+        context.level = keyboard.Level;
+
+        Controller.context = context;
+
+        //reload the current scene
+        StartCoroutine(player.LoadSceneAnimation(SceneManager.GetActiveScene().name));
+    }
+
+    /// <summary>
+    /// Load the main menu
+    /// </summary>
+    public void LoadMainMenu(){
+        Controller player = gameObject.GetComponent<Controller>();
+        StartCoroutine(player.LoadSceneAnimation("MainMenu"));
     }
 
     private void RefreshHealthBar(){

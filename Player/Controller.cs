@@ -42,8 +42,9 @@ public class Controller : MonoBehaviour
     [Header("-- Other --")]
     public KeyboardController keyboardController; //reference to the keyboard controller
     [SerializeField] private Animator playerAnimator;   //reference to the player animator
+    [SerializeField] private Animator sceneTransitionAnimator;  //reference to the animator on the scene transition
     [SerializeField] private float deathZoneY;  //the y below which the player is dead
-    public static bool interacting = false; //is the player interacting with something
+    public static bool isInteracting = false; //is the player interacting with something
 
     private SpriteRenderer playerRenderer;
     private Rigidbody2D playerRigid;
@@ -150,7 +151,7 @@ public class Controller : MonoBehaviour
     private void Move() 
     {
         //dont move if the player is grappling or dashing or interacting
-        if(isDashing || isGrappling || interacting){
+        if(isDashing || isGrappling || isInteracting){
             return;
         }
 
@@ -263,6 +264,11 @@ public class Controller : MonoBehaviour
     }
 
     //grapple ability
+    /// <summary>
+    /// Grapples the player to a point
+    /// </summary>
+    /// <param name="grapplePoint">The grapple point position</param>
+    /// <returns></returns>
     public IEnumerator GrappleToPoint(Vector2 grapplePoint){        
         //wait to finish the dash coroutine before starting the grapple one
         if(isDashing) yield return new WaitUntil(() => !isDashing);
@@ -301,6 +307,23 @@ public class Controller : MonoBehaviour
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.transform.position, GCRadius, whatIsGround);
         return colliders.Length > 0;
+    }
+
+    /// <summary>
+    /// Animate the transition between two scenes
+    /// </summary>
+    /// <param name="sceneName">The name of the scene</param>
+    /// <returns></returns>
+    public IEnumerator LoadSceneAnimation(string sceneName){
+        sceneTransitionAnimator.SetBool("LoadingScene", true);
+
+        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("EnteringScreen"));
+
+        sceneTransitionAnimator.SetBool("LoadingScene", false);
+
+        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OffScreen"));
+
+        SceneManager.LoadScene(sceneName);
     }
 
     void OnDrawGizmos() {

@@ -8,6 +8,7 @@ public class Conversation : ScriptableObject
     public ConversationLine[] conversationLines;
     public bool availableAtStart;
     public bool makeDefaultAfterFinished;   //should the npc repeat this conversation after they have finished saying it
+    public bool npcDoneInScene; //after this conversation, the npc is finished in the scene
     private bool _available;
     public bool IsAvailable { 
         get => _available;

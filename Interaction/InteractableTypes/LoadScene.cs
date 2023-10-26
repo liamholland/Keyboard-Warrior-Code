@@ -38,6 +38,6 @@ public class LoadScene : MonoBehaviour, IObject
         Controller.context = context;   //set the player context
 
         //load the scene
-        SceneManager.LoadScene(levelToLoad);
+        StartCoroutine(player.LoadSceneAnimation(levelToLoad));
     }
 }

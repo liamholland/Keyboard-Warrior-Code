@@ -85,11 +85,6 @@ public class InteractionAbility : MonoBehaviour
     {
         //search for colliders in the area of the player
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRange, whatIsInteractable);
-        
-        //dont restrict the player movement if they cannot interact
-        if(colliders.Length == 0){
-            Controller.interacting = false;
-        }
 
         float currentSmallest = 1000f;
 
