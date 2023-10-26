@@ -103,7 +103,7 @@ public class Enemy : MonoBehaviour
 
     //path finding for enemies which can only move left and right on the ground
     private Vector2 FindPathX(Vector2 toPoint){
-        if(getClose) return toPoint;    //just go towards the point if the enemy needs to get close
+        if(getClose) return new Vector2(toPoint.x, transform.position.y);    //just go towards the point if the enemy needs to get close
 
         //find a point an acceptable distance from the target (greater than the attack range)
 
@@ -145,7 +145,7 @@ public class Enemy : MonoBehaviour
         }
 
         //return the point
-        return pointToGoTo;
+        return new Vector2(pointToGoTo.x, transform.position.y);
     }
 
 

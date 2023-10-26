@@ -73,6 +73,8 @@ public class Controller : MonoBehaviour
     }
 
     private void Start(){
+        isInteracting = false;
+
         //set the player context if there is one
         if(context != null){
             //set player values
@@ -129,6 +131,9 @@ public class Controller : MonoBehaviour
         }
         else if(Input.GetButtonDown("ThrowAttack") && !keyboardController.IsThrown && keyboardController.longCableUnlocked){
             StartCoroutine(keyboardController.RangeAttackWithKeyboard());
+        }
+        else if(Input.GetKeyDown(KeyCode.Escape)){
+            StartCoroutine(LoadSceneAnimation("MainMenu"));
         }
 
         //for now, the start position is just the player's position
@@ -317,11 +322,7 @@ public class Controller : MonoBehaviour
     public IEnumerator LoadSceneAnimation(string sceneName){
         sceneTransitionAnimator.SetBool("LoadingScene", true);
 
-        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("EnteringScreen"));
-
-        sceneTransitionAnimator.SetBool("LoadingScene", false);
-
-        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OffScreen"));
+        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen"));
 
         SceneManager.LoadScene(sceneName);
     }
