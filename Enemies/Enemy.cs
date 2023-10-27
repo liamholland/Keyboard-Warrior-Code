@@ -56,11 +56,11 @@ public class Enemy : MonoBehaviour
     {
         if (isHostile)
         {
-            StopCoroutine(runningPassive);
+            if(runningPassive != null) StopCoroutine(runningPassive);
 
             if(!isAttacking && TargetWithinAttackRange(player.transform.position)){
                 isAttacking = true;
-                StartCoroutine(Attack());
+                ChooseAttack();
             }
             else if(!isAttacking){
                 //set the current move speed to hostileMoveSpeed
@@ -208,29 +208,39 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    //the attack behaviour of the enemy
-    private IEnumerator Attack()
+    /// <summary>
+    /// Choose the attack the enemy will use
+    /// </summary>
+    public virtual void ChooseAttack(){
+        StartCoroutine(Attack(mainAttack));
+    }
+
+    /// <summary>
+    /// The attack behaviour of the enemy
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerator Attack(Attack attack)
     {   
         //the enemy is attacking
         isAttacking = true;
 
         //set the move speed
-        currentMoveSpeed = mainAttack.WindUpMoveSpeed;
+        currentMoveSpeed = attack.WindUpMoveSpeed;
 
-        mainAttack.WindUpAnimation();   //run the windup animation
+        attack.WindUpAnimation();   //run the windup animation
 
         //wind up on the enemies attack
-        yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Attack"));
+        yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName(attack.attackState != "" ? attack.attackState : "Attack"));
 
         // Debug.Log("Doing attack");
         //find all the player colliders in range of the enemy after the wind up
-        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, mainAttack.AttackRange, whatIsPlayer);
+        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, attack.AttackRange, whatIsPlayer);
 
         //set the move speed
-        currentMoveSpeed = mainAttack.AttackMoveSpeed;
+        currentMoveSpeed = attack.AttackMoveSpeed;
 
         //execute the attack
-        mainAttack.DoAttack(colliderInRange);
+        attack.DoAttack(colliderInRange);
 
         //wait until the animation for the attack is done
         yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
@@ -239,10 +249,10 @@ public class Enemy : MonoBehaviour
         isCooldown = true;
 
 
-        currentMoveSpeed = mainAttack.CooldownMoveSpeed;
+        currentMoveSpeed = attack.CooldownMoveSpeed;
 
         // Debug.Log("Cooldown");
-        yield return new WaitForSeconds(mainAttack.AttackCoolDown);
+        yield return new WaitForSeconds(attack.AttackCoolDown);
 
         //the enemy is out of cooldown
         isCooldown = false;

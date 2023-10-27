@@ -20,9 +20,7 @@ public class RushAtPlayer : Attack
 
     public override void DoAttack(Collider2D colliderToDamage)
     {
-        if(useAttackAnimation){
-            animator.SetBool(attackAnimationCondition, true);
-        }
+        animator.SetBool(attackAnimationCondition, true);
 
         // Debug.Log("Attacking");
         StartCoroutine(DashAttack());

@@ -5,17 +5,20 @@ using UnityEngine;
 public class Attack : MonoBehaviour
 {   
     public Animator animator;   //animator of the entity attacking
-    public bool useAttackAnimation = false;
-    public string attackState;  //name of the attack state that contains the animation of this attack
-    public string attackAnimationCondition; //the name of the condition to change to allow the attack animation to play
-    public bool useWindUpAnimation = false;
+    [Header("-- Wind Up --")]
+    public bool useAutoWindUpAnimation = false;
     public string windupState;  //the name of the wind up animation state
     public string windupAnimationCondition; //the name of the condition to change to allow the windup animation to play
-
+    [SerializeField] private float windUpMoveSpeed; //the speed of an enemies windup
+    [Header("-- Attack --")]
+    public bool useAutoAttackAnimation = false;
+    public string attackState;  //name of the attack state that contains the animation of this attack
+    public string attackAnimationCondition; //the name of the condition to change to allow the attack animation to play
     [SerializeField] private float attackRange; //the range of the attack
     [SerializeField] private int attackDamage;  //the damage the attack does
-    [SerializeField] private float windUpMoveSpeed; //the speed of an enemies windup
     [SerializeField] private float attackMoveSpeed; //the speed the enemy moves when attacking
+
+    [Header("-- Cooldown --")]
     [SerializeField] private float attackCoolDown;    //amount of time the enemy must wait for
     [SerializeField] private float coolDownMoveSpeed;   //how fast the entity moves when on cooldown
 
@@ -25,27 +28,28 @@ public class Attack : MonoBehaviour
     public float WindUpMoveSpeed => windUpMoveSpeed;    //public accessor for wind up move speed
     public float AttackCoolDown => attackCoolDown;  //public accessor for attack cooldown
     public float CooldownMoveSpeed => coolDownMoveSpeed;    //public accessor for cooldown move speed
+    public int AttackCost { get; set; } //the amount the attack costs - Used for choosing an attack to use - not used in default implementation
 
     void Update(){
-        if(useAttackAnimation && animator.GetCurrentAnimatorStateInfo(0).IsName(attackState)){
+        if(useAutoAttackAnimation && animator.GetCurrentAnimatorStateInfo(0).IsName(attackState)){
             animator.SetBool(attackAnimationCondition, false);
         }
 
-        if(useWindUpAnimation && animator.GetCurrentAnimatorStateInfo(0).IsName(windupState)){
+        if(useAutoWindUpAnimation && animator.GetCurrentAnimatorStateInfo(0).IsName(windupState)){
             animator.SetBool(windupAnimationCondition, false);
         }
     }
 
     //play the windup animation
     public virtual void WindUpAnimation(){
-        if(useWindUpAnimation){
+        if(useAutoWindUpAnimation){
             animator.SetBool(windupAnimationCondition, true);
         }
     }
 
     //do the actual attack
     public virtual void DoAttack(Collider2D colliderToDamage){
-        if(useAttackAnimation){
+        if(useAutoAttackAnimation){
             animator.SetBool(attackAnimationCondition, true);
         }
         

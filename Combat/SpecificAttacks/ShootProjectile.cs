@@ -10,7 +10,7 @@ public class ShootProjectile : Attack
 
     public override void DoAttack(Collider2D colliderToDamage)
     {
-        if(useAttackAnimation){
+        if(useAutoAttackAnimation){
             animator.SetBool(attackAnimationCondition, true);
         }
 
