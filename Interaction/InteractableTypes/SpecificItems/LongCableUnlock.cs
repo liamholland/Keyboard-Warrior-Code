@@ -15,13 +15,14 @@ public class LongCableUnlock : MonoBehaviour, IObject
     public string CustomKeyCode => "";
 
     public KeyboardController keyboardController;   //reference to the keyboard controller
-    public TutorialObject grappleTutorial;  //reference to the grapple tutorial
+
+    private void Start(){
+        keyboardController = GameObject.FindGameObjectWithTag("Keyboard").GetComponent<KeyboardController>();
+    }
 
     public void Do()
     {
         keyboardController.longCableUnlocked = true;    //unlock the long cable
-
-        grappleTutorial.IsAvailable = true; //enable the tutorial
 
         gameObject.SetActive(false);    //remove the unlock from the game
     }

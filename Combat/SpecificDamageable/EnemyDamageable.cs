@@ -21,7 +21,7 @@ public class EnemyDamageable : Damageable
         StartCoroutine(FlashOnDamage());
     }
 
-    private IEnumerator FlashOnDamage()
+    public IEnumerator FlashOnDamage()
     {
         Color enemyColor = enemyRenderer.color;
 
