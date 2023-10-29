@@ -14,7 +14,8 @@ public class Attack : MonoBehaviour
     public bool useAutoAttackAnimation = false;
     public string attackState;  //name of the attack state that contains the animation of this attack
     public string attackAnimationCondition; //the name of the condition to change to allow the attack animation to play
-    [SerializeField] private float attackRange; //the range of the attack
+    [SerializeField] private float attackTriggerRange; //the range of the attack
+    [SerializeField] private float attackDamageRange;
     [SerializeField] private int attackDamage;  //the damage the attack does
     [SerializeField] private float attackMoveSpeed; //the speed the enemy moves when attacking
 
@@ -22,7 +23,8 @@ public class Attack : MonoBehaviour
     [SerializeField] private float attackCoolDown;    //amount of time the enemy must wait for
     [SerializeField] private float coolDownMoveSpeed;   //how fast the entity moves when on cooldown
 
-    public float AttackRange => attackRange;    //public accessor for attack range
+    public float AttackTriggerRange => attackTriggerRange;    //public accessor for trigger range
+    public float AttackDamageRange => attackDamageRange;    //public accessor for damage range
     public int AttackDamage => attackDamage;    //public accessor for the damage
     public float AttackMoveSpeed => attackMoveSpeed;    //public accessor for attack move speed
     public float WindUpMoveSpeed => windUpMoveSpeed;    //public accessor for wind up move speed
@@ -61,7 +63,10 @@ public class Attack : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, attackTriggerRange);
+
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.DrawWireSphere(transform.position, attackDamageRange);
     }
 }

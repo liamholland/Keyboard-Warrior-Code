@@ -237,7 +237,7 @@ public class Enemy : MonoBehaviour
 
         // Debug.Log("Doing attack");
         //find all the player colliders in range of the enemy after the wind up
-        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, attack.AttackRange, whatIsPlayer);
+        Collider2D colliderInRange = Physics2D.OverlapCircle(transform.position, attack.AttackDamageRange, whatIsPlayer);
 
         //set the move speed
         currentMoveSpeed = attack.AttackMoveSpeed;
@@ -270,10 +270,10 @@ public class Enemy : MonoBehaviour
     //is the target within the attack range of the enemy
     private bool TargetWithinAttackRange(Vector2 targetPosition){
         if(getClose){
-            return Vector2.Distance(transform.position, targetPosition) < mainAttack.AttackRange;
+            return Vector2.Distance(transform.position, targetPosition) < mainAttack.AttackTriggerRange;
         }
         else{
-            return Vector2.Distance(transform.position, targetPosition) > mainAttack.AttackRange;
+            return Vector2.Distance(transform.position, targetPosition) > mainAttack.AttackTriggerRange;
         }
     }
 

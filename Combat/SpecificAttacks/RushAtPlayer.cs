@@ -60,10 +60,10 @@ public class RushAtPlayer : Attack
         // }
 
         yield return new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.3f ||
-                                    Vector2.Distance(player.transform.position, transform.position) < AttackRange);
+                                    Vector2.Distance(player.transform.position, transform.position) < AttackDamageRange);
         // Debug.Log("Reached Target");
 
-        if(Vector2.Distance(player.transform.position, transform.position) < AttackRange){
+        if(Vector2.Distance(player.transform.position, transform.position) < AttackDamageRange){
             player.GetComponent<Damageable>().TakeDamage(AttackDamage);
         }
 

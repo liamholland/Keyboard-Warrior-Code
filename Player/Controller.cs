@@ -212,7 +212,7 @@ public class Controller : MonoBehaviour
     public void Attack(Attack attack)
     {
         //get an enemy collider
-        Collider2D collider = Physics2D.OverlapCircle(keyboardController.gameObject.transform.position, attack.AttackRange, whatIsEnemy);
+        Collider2D collider = Physics2D.OverlapCircle((Vector2)keyboardController.gameObject.transform.position + new Vector2(transform.localScale.x, Input.GetAxisRaw("Vertical") * 0.8f), attack.AttackDamageRange, whatIsEnemy);
         
         //if there is a collider, do damage to it
         if(collider != null){
@@ -332,6 +332,9 @@ public class Controller : MonoBehaviour
 
         Gizmos.color = Color.red;
         Gizmos.DrawLine(new Vector2(-100f, deathZoneY), new Vector2(100f, deathZoneY));
+        // Gizmos.DrawWireSphere((Vector2)keyboardController.gameObject.transform.position + new Vector2(transform.localScale.x, 0f), sideAttack.AttackDamageRange);
+        // Gizmos.DrawWireSphere((Vector2)keyboardController.gameObject.transform.position + new Vector2(transform.localScale.x, 0.8f), upAttack.AttackDamageRange);
+        // Gizmos.DrawWireSphere((Vector2)keyboardController.gameObject.transform.position + new Vector2(transform.localScale.x, -0.8f), downAttack.AttackDamageRange);
 
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(groundCheck.transform.position, GCRadius);
