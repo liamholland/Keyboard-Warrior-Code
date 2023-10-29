@@ -13,12 +13,15 @@ public class PlayerDamageable : Damageable
     private SpriteRenderer playerRenderer;  //reference to the player's sprite renderer
     private bool invulnerable = false;   //is the player invulnerable
     private int fullHealth; //the health the player has at max health
+    private Color playerColour;  //the colour of the player
 
 
     private void Start(){
         playerAnimator = gameObject.GetComponent<Animator>();
     
         playerRenderer = gameObject.GetComponent<SpriteRenderer>();
+
+        playerColour = playerRenderer.color;    //set the player's colour
 
         fullHealth = health;    //record the player's max health
 
@@ -98,8 +101,6 @@ public class PlayerDamageable : Damageable
 
         float elapsedTime = 0f;
 
-        Color playerColor = playerRenderer.color;
-
         //flash the player
         while(elapsedTime <= iFrameTime){
 
@@ -107,14 +108,14 @@ public class PlayerDamageable : Damageable
 
             yield return new WaitForSeconds(0.1f);
 
-            playerRenderer.color = playerColor;
+            playerRenderer.color = playerColour;
 
             yield return new WaitForSeconds(0.1f);
 
             elapsedTime += Time.fixedDeltaTime;
         }
 
-        playerRenderer.color = playerColor;
+        playerRenderer.color = playerColour;
 
         invulnerable = false;
     }

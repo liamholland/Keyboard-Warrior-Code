@@ -74,7 +74,7 @@ public class Enemy : MonoBehaviour
             }
 
             if(!isAttacking || isCooldown){
-                currentTarget = canMoveIn2D ? FindPathXY(player.transform.position) : FindPathX(player.transform.position);
+                currentTarget = getClose ? FindPathToTarget(player.transform.position) : FindPathAwayFromTarget(player.transform.position);
             }
         }
         else
@@ -102,9 +102,7 @@ public class Enemy : MonoBehaviour
     }
 
     //path finding for enemies which can only move left and right on the ground
-    private Vector2 FindPathX(Vector2 toPoint){
-        if(getClose) return new Vector2(toPoint.x, transform.position.y);    //just go towards the point if the enemy needs to get close
-
+    private Vector2 FindPathAwayFromTarget(Vector2 toPoint){
         //find a point an acceptable distance from the target (greater than the attack range)
 
         if(TargetWithinAttackRange(toPoint)){
@@ -112,7 +110,7 @@ public class Enemy : MonoBehaviour
         }
 
         //get the direction to go is opposite to the direction of the point
-        Vector2 direction = new Vector2((toPoint.x - transform.position.x) * -1, 0f).normalized;
+        Vector2 direction = new Vector2((toPoint.x - transform.position.x) * -1, canMoveIn2D ? 5f : 0f).normalized;
 
         int nextDist = 1; //the distance to check if there is a valid point
 
@@ -145,57 +143,62 @@ public class Enemy : MonoBehaviour
         }
 
         //return the point
-        return new Vector2(pointToGoTo.x, transform.position.y);
+        return new Vector2(pointToGoTo.x, canMoveIn2D ? pointToGoTo.y : transform.position.y);
     }
 
 
     //path finding for 2D, flying enemies
-    private Vector2 FindPathXY(Vector2 toPoint)
+    private Vector2 FindPathToTarget(Vector2 toPoint)
     {
-        //check if there is ground in the way
-        RaycastHit2D ground = Physics2D.Raycast(transform.position, toPoint - (Vector2)transform.position, Vector2.Distance(transform.position, toPoint), whatIsObstacle);
+        if(canMoveIn2D){
+            //check if there is ground in the way
+            RaycastHit2D ground = Physics2D.Raycast(transform.position, (toPoint - (Vector2)transform.position).normalized, Vector2.Distance(transform.position, toPoint), whatIsObstacle);
 
-        //return the point that was passed if there is nothing in the way
-        if(ground.collider == null) return toPoint;
+            //return the point that was passed if there is nothing in the way
+            if(ground.collider == null) return toPoint;
 
-        //otherwise, find a temporary point to travel to to avoid the ground
+            //otherwise, find a temporary point to travel to to avoid the ground
 
-        //initialise a left and right point at the point of the collision
-        Vector2 leftPoint = ground.point;
-        Vector2 rightPoint = ground.point;
+            //initialise a left and right point at the point of the collision
+            Vector2 leftPoint = ground.point;
+            Vector2 rightPoint = ground.point;
 
-        //declare two scanners
-        RaycastHit2D leftScan;
-        RaycastHit2D rightScan;
-        
-        float elapsedTime = 0f;
+            //declare two scanners
+            RaycastHit2D leftScan;
+            RaycastHit2D rightScan;
+            
+            float elapsedTime = 0f;
 
-        //scan left and right until there is no ground or the maximum time is exceeded
-        while(elapsedTime < maxPathFindingTime){
-            //move the target of the left and right scanners more left and right
-            leftPoint = new Vector2(leftPoint.x - pathScanningInterval, leftPoint.y);
-            rightPoint = new Vector2(rightPoint.x + pathScanningInterval, rightPoint.y);
+            //scan left and right until there is no ground or the maximum time is exceeded
+            while(elapsedTime < maxPathFindingTime){
+                //move the target of the left and right scanners more left and right
+                leftPoint = new Vector2(leftPoint.x - pathScanningInterval, leftPoint.y);
+                rightPoint = new Vector2(rightPoint.x + pathScanningInterval, rightPoint.y);
 
-            //do a scan to the left and to the right
-            leftScan = Physics2D.Raycast(transform.position, leftPoint - (Vector2)transform.position, Vector2.Distance(transform.position, leftPoint), whatIsObstacle);
-            rightScan = Physics2D.Raycast(transform.position, rightPoint - (Vector2)transform.position, Vector2.Distance(transform.position, rightPoint), whatIsObstacle);
+                //do a scan to the left and to the right
+                leftScan = Physics2D.Raycast(transform.position, leftPoint - (Vector2)transform.position, Vector2.Distance(transform.position, leftPoint), whatIsObstacle);
+                rightScan = Physics2D.Raycast(transform.position, rightPoint - (Vector2)transform.position, Vector2.Distance(transform.position, rightPoint), whatIsObstacle);
 
-            //if there is a space, check that there is enough space for the enemy, if so return the point
-            if(leftScan.collider == null){
-                Collider2D groundNearHit = Physics2D.OverlapCircle(leftPoint, spaceForEnemy, whatIsObstacle);
+                //if there is a space, check that there is enough space for the enemy, if so return the point
+                if(leftScan.collider == null){
+                    Collider2D groundNearHit = Physics2D.OverlapCircle(leftPoint, spaceForEnemy, whatIsObstacle);
 
-                if(groundNearHit == null) return leftPoint;
+                    if(groundNearHit == null) return leftPoint;
+                }
+                else if(rightScan.collider == null){
+                    Collider2D groundNearHit = Physics2D.OverlapCircle(rightPoint, spaceForEnemy, whatIsObstacle);
+
+                    if(groundNearHit == null) return rightPoint;
+                }
+
+                elapsedTime += Time.deltaTime;
             }
-            else if(rightScan.collider == null){
-                Collider2D groundNearHit = Physics2D.OverlapCircle(rightPoint, spaceForEnemy, whatIsObstacle);
 
-                if(groundNearHit == null) return rightPoint;
-            }
-
-            elapsedTime += Time.deltaTime;
+            return transform.position;  //something has gone wrong, return the enemy's position
         }
-
-        return transform.position;  //something has gone wrong, return the enemy's position
+        else{
+            return new Vector2(toPoint.x, transform.position.y);
+        }
     }
 
     //point the enemy towards the target it is heading for
@@ -285,7 +288,7 @@ public class Enemy : MonoBehaviour
         {
             while(true){
                 //set the current target to the point or a temporary point to avoid obstacles
-                currentTarget = canMoveIn2D ? FindPathXY(point) : point;
+                currentTarget = getClose ? FindPathToTarget(point) : point;
 
                 //if the pathfinding returned a temporary point, travel to that point and try again
                 if(Equals(point, currentTarget)){

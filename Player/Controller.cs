@@ -226,6 +226,7 @@ public class Controller : MonoBehaviour
     //Dash Ability
     private IEnumerator Dash(){
         //the player is now dashing
+        maintainMomentum = false;
         dashAvailable = false;
         isDashing = true;
 
