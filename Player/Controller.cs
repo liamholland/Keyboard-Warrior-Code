@@ -83,6 +83,7 @@ public class Controller : MonoBehaviour
             keyboardController.KeyboardAvailable = context.available;
             keyboardController.longCableUnlocked = context.longCableUnlocked;
             keyboardController.Level = context.level;
+            keyboardController.keys = context.keys;
 
             //set player position
             transform.position = PlayerContext.spawnPosition;

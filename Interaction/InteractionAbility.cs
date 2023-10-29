@@ -63,11 +63,8 @@ public class InteractionAbility : MonoBehaviour
             instructionsAnimator.SetBool("interactableAvailable", !instructionsAnimator.GetBool("interactableAvailable"));
         }
 
-        //if the instructions box is hidden
-        if(instructionsAnimator.GetCurrentAnimatorStateInfo(0).IsName("Hiding")){
-            //set the text of the interaction instructions on the HUD
-            interactionInstructions.text = closestInteractable == null ? "" : closestInteractable.GetComponent<IObject>().Instructions;
-        }
+        //set the text of the interaction instructions on the HUD
+        interactionInstructions.text = closestInteractable == null ? "" : closestInteractable.GetComponent<IObject>().Instructions;
 
         //if the instructions box is doing the interaction
         if(instructionsAnimator.GetCurrentAnimatorStateInfo(0).IsName("InteractionDone")){

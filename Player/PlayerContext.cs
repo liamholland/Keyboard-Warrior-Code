@@ -12,6 +12,7 @@ public class PlayerContext : ScriptableObject
     public bool available;
     public bool longCableUnlocked;
     public int level;
+    public List<Key> keys;
 
     [Header("-- Position --")]
     public static Vector2 spawnPosition;

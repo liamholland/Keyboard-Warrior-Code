@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 
@@ -10,6 +12,7 @@ public class KeyboardController : MonoBehaviour
     [Header("-- Unlocks --")]
     [SerializeField] private bool available = false;   //has the keyboard been unlocked at all
     public bool longCableUnlocked = false;  //the longer cable allows you to throw the keyboard to use it as a grapple and a long range weapon
+    public List<Key> keys = new List<Key>();  //the keys the player has collected for the keyboard
     
     //public accessor for available
     public bool KeyboardAvailable{

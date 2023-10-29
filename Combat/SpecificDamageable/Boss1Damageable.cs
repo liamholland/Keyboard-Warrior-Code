@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Boss1Damageable : EnemyDamageable
 {
     public GameObject longCableUnlock;  //the unlock for the long cable
+    public GameObject keyUnlock; //the unlock for the red key
     public BossDoor bossRoomDoor;  //the boss room door
     public Animator animator;
     public Rigidbody2D bossRigid;   //the boss rigidbody
@@ -56,7 +57,8 @@ public class Boss1Damageable : EnemyDamageable
 
         yield return new WaitUntil(() => transform.position.y > 30f);
 
-        Instantiate(longCableUnlock, transform.position, Quaternion.identity);
+        Instantiate(longCableUnlock, new Vector2(transform.position.x + 1, transform.position.y), Quaternion.identity);
+        Instantiate(keyUnlock, new Vector2(transform.position.x - 1, transform.position.y), Quaternion.identity);
 
         bossRoomDoor.Open();    //open the boss room door
 
