@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Boss1Damageable : EnemyDamageable
 {
@@ -10,11 +11,27 @@ public class Boss1Damageable : EnemyDamageable
     public Rigidbody2D bossRigid;   //the boss rigidbody
     public Enemy boss;
 
+    [Header("-- Health Bar --")]
+    public Animator bossHealthBarAnimator;  //the animator of the health bar
+    public Image healthBar;
+
+    private int maxHealth;  //the max health of the boss
+    private float originalHealthBarX;
+
+    private void Start(){
+        maxHealth = health; //record the max health
+        originalHealthBarX = healthBar.rectTransform.sizeDelta.x;
+    }
+
     public override void TakeDamage(int damage)
     {
+        
         if(health <= 0) return; //dont do anything if already dead
 
         health -= damage;   //reduce health
+
+        //update the health bar
+        healthBar.rectTransform.sizeDelta = new Vector2(originalHealthBarX * ((float)health / maxHealth), healthBar.rectTransform.sizeDelta.y);
 
         //check if the boss is dead now
         if(health <= 0){
@@ -26,6 +43,8 @@ public class Boss1Damageable : EnemyDamageable
     }
 
     private IEnumerator Die(){
+        bossHealthBarAnimator.SetBool("inConversation", false); //im using the dialogue box animator
+
         boss.EnemyTarget = transform.position;
 
         animator.SetBool("dead", true);

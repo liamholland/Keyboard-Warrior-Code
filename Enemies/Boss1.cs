@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Boss1 : Enemy
@@ -15,11 +16,17 @@ public class Boss1 : Enemy
     public Attack jumpOntoServer;   //boss jumps on to the server and hits it to spawn enemies
     [SerializeField] int defaultJumpServerCost;
 
+    [Header("-- Boss Name --")]
+    public TextMeshProUGUI bossNameText;
+    public string bossName;
+
     private int attackTokens = 0;   //boss needs a certain number of tokens to do different attacks
     private List<Attack> attacks;   //list of all the bosses attacks
 
 
     private void Start(){
+        bossNameText.text = bossName;
+
         attacks = new List<Attack>();
         
         //set the costs of the attacks
@@ -44,18 +51,23 @@ public class Boss1 : Enemy
     {
         Attack attackToPerform = baseAttack;
 
+        if(Physics2D.OverlapCircle(transform.position, 50f, whatIsCable) == null){
+            attacks.Remove(throwCableAttack);   //cannot do this attack when there are no cables
+        }
+
         //choose the cheapest attack
         foreach(Attack attack in attacks){
+            //if the attack is cheaper and the boss can afford it
             if(attack.AttackCost < attackToPerform.AttackCost){
                 attackToPerform = attack;
             }
         }
-        
+
         //double the attack cost of the chosen attack
         attackToPerform.AttackCost += attackToPerform.AttackCost;
 
         attackTokens -= attackToPerform.AttackCost; //subtract the cost from the tokens
-        
+
         StartCoroutine(Attack(attackToPerform));
     }
 

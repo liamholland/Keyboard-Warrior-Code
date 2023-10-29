@@ -35,10 +35,10 @@ public class KeyboardController : MonoBehaviour
     [Range(1f, 30f)] [SerializeField] private float keyboardGrappleRange;
     [Range(1f, 30f)] [SerializeField] private float keyboardThrowAttackRange;
     [SerializeField] private Attack throwAttack;    //the attack of performed when thrown
-    
-    [HideInInspector] public Vector2 startPosition;  //the position the keyboard started from
-    [HideInInspector] public bool IsHooked { get => hooked; } //is the keyboard hooked - read only
-    [HideInInspector] public bool IsThrown { get => thrown; }   //is the keyboard thrown - read only
+    [SerializeField] private LineRenderer cable;    //the rendered cable
+    public Vector2 startPosition { get; set; }  //the position the keyboard started from
+    public bool IsHooked { get => hooked; } //is the keyboard hooked - read only
+    public bool IsThrown { get => thrown; }   //is the keyboard thrown - read only
     
     [Header("-- Coding Level --")]
     [SerializeField] private int level = 0;    //the level of the player
@@ -94,6 +94,14 @@ public class KeyboardController : MonoBehaviour
                     target = startPosition; //otherwise set the target to the start position
                 }
             }
+
+            //render the cable
+            cable.enabled = true;
+            cable.SetPosition(0, transform.position);
+            cable.SetPosition(1, player.transform.position);
+        }
+        else{
+            cable.enabled = false;
         }
     }
 
