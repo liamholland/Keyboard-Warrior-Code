@@ -51,17 +51,10 @@ public class PlayerDamageable : Damageable
     public void RetryScene(){
         Controller player = gameObject.GetComponent<Controller>();
         KeyboardController keyboard = player.keyboardController;
-        
-        //set the context
-        PlayerContext context = (PlayerContext)ScriptableObject.CreateInstance("PlayerContext");
-        context.canDash = player.canDash;
-        context.airControl = player.airControl;
-        context.available = keyboard.KeyboardAvailable;
-        context.longCableUnlocked = keyboard.longCableUnlocked;
-        context.level = keyboard.Level;
-        context.keys = keyboard.keys;
 
-        Controller.context = context;
+        Controller.context = PlayerContext.GenerateNewContext(player, keyboard);
+
+        Controller.context.sceneName = SceneManager.GetActiveScene().name;
 
         //reload the current scene
         StartCoroutine(player.LoadSceneAnimation(SceneManager.GetActiveScene().name));

@@ -36,6 +36,7 @@ public class EnemyDamageable : Damageable
 
         if(health <= 0){
             //enemy is dead
+            PlayerContext.enemiesKilled++;
 
             //make all conversations available
             foreach(Conversation c in conversationsToMakeAvailableOnDeath){

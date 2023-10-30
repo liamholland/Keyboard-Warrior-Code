@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerContext : ScriptableObject
 {
@@ -15,10 +16,13 @@ public class PlayerContext : ScriptableObject
     public List<Key> keys;
 
     [Header("-- Position --")]
+    public string sceneName;
     public static Vector2 spawnPosition;
 
     //static context
     //lists of game object names to find
+    public static float startTime = 0f;
+    public static int enemiesKilled = 0;
     public static List<string> openDoors = new List<string>();
     public static List<string> decodedComputers = new List<string>();
     public static List<string> npcsFinishedInScenes = new List<string>();
@@ -167,5 +171,24 @@ public class PlayerContext : ScriptableObject
                 levelUp.SetActive(false);   //remove it from the scene
             }
         }
+    }
+
+    /// <summary>
+    /// Generate a new context object
+    /// </summary>
+    /// <param name="player">Instance of the player controller</param>
+    /// <param name="keyboard">Instance of the player keyboard controller</param>
+    /// <returns></returns>
+    public static PlayerContext GenerateNewContext(Controller player, KeyboardController keyboard){
+        //create a context
+        PlayerContext context = (PlayerContext)CreateInstance("PlayerContext");
+        context.airControl = player.airControl;
+        context.canDash = player.canDash;
+        context.available = keyboard.KeyboardAvailable;
+        context.longCableUnlocked = keyboard.longCableUnlocked;
+        context.level = keyboard.Level;
+        context.keys = keyboard.keys;
+
+        return context;
     }
 }

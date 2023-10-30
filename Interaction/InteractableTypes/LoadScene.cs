@@ -24,19 +24,12 @@ public class LoadScene : MonoBehaviour, IObject
         //get a reference to the player and the keyboard
         Controller player = GameObject.Find("Player").GetComponent<Controller>();
         KeyboardController keyboard = player.keyboardController;
-
-        //create a context
-        PlayerContext context = (PlayerContext)ScriptableObject.CreateInstance("PlayerContext");
-        context.airControl = player.airControl;
-        context.canDash = player.canDash;
-        context.available = keyboard.KeyboardAvailable;
-        context.longCableUnlocked = keyboard.longCableUnlocked;
-        context.level = keyboard.Level;
-        context.keys = keyboard.keys;
         
         PlayerContext.spawnPosition = atPosition;
         
-        Controller.context = context;   //set the player context
+        Controller.context = PlayerContext.GenerateNewContext(player, keyboard);   //set the player context
+
+        Controller.context.sceneName = levelToLoad;
 
         //load the scene
         StartCoroutine(player.LoadSceneAnimation(levelToLoad));

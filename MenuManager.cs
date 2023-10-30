@@ -3,32 +3,41 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
     public GameObject changeResMenu;    //the menu to change the resolution of the game
+    public Button continueGameButton;   //the button that lets you continue the game
     public TextMeshProUGUI versionText; //the text displaying the version of the build
-
     public Animator sceneTransitionAnimator;    //reference to the scene transition
 
     private void Start(){
         versionText.text = "V" + Application.version;   //set the version text
         SetRes720();    //set the resolution to 720p
+
+        continueGameButton.interactable = Controller.context != null;   //if there is a context, let the player load it
     }
 
     /// <summary>
     /// Load the first level of the game
     /// </summary>
     public void LoadLevelOne(){
-        StartCoroutine(LoadLevelOneTransition());
+        StartCoroutine(LoadLevelTransition("Level1"));
     }
 
-    private IEnumerator LoadLevelOneTransition(){
+    public void LoadLastLevel(){
+        StartCoroutine(LoadLevelTransition(Controller.context.sceneName));
+    }
+
+    private IEnumerator LoadLevelTransition(string levelName){
         sceneTransitionAnimator.SetBool("LoadingScene", true);
         
         yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen"));
 
-        SceneManager.LoadScene("Level1");
+        PlayerContext.startTime = Time.time;    //start the timer
+
+        SceneManager.LoadScene(levelName);
     }
 
     /// <summary>
