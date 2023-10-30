@@ -22,6 +22,7 @@ public class PlayerContext : ScriptableObject
     //static context
     //lists of game object names to find
     public static float startTime = 0f;
+    public static int numCollectiblesFound = 0;
     public static int enemiesKilled = 0;
     public static List<string> openDoors = new List<string>();
     public static List<string> decodedComputers = new List<string>();
@@ -29,6 +30,7 @@ public class PlayerContext : ScriptableObject
     public static List<string> conversationsToMakeAvailable = new List<string>();
     public static List<string> conversationsToMakeUnavailable = new List<string>();
     public static List<string> levelUpsCollected = new List<string>();
+    public static List<string> collectiblesFound = new List<string>();
 
     /// <summary>
     /// Add a door which should remain open after the player has opened it
@@ -94,6 +96,15 @@ public class PlayerContext : ScriptableObject
         //add the level up to the context
         if(!levelUpsCollected.Contains(levelUp.name)){
             levelUpsCollected.Add(levelUp.name);
+        }
+    }
+
+    public static void AddCollectibleToContext(GameObject collectible){
+        if(collectible.GetComponent<Collectible>() == null) return; //game object is not a collectible
+    
+        //add the collectible to the context
+        if(!collectiblesFound.Contains(collectible.name)){
+            collectiblesFound.Add(collectible.name);
         }
     }
 
@@ -169,6 +180,14 @@ public class PlayerContext : ScriptableObject
             GameObject levelUp = GameObject.Find(levelUpName);
             if(levelUp != null){
                 levelUp.SetActive(false);   //remove it from the scene
+            }
+        }
+
+        foreach(string collectible in collectiblesFound){
+            GameObject collectibleObject = GameObject.Find(collectible);
+
+            if(collectibleObject != null){
+                collectibleObject.SetActive(false);
             }
         }
     }
