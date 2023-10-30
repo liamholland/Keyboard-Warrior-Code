@@ -13,6 +13,7 @@ public class Controller : MonoBehaviour
     [SerializeField] private float GCRadius;
     [SerializeField] private LayerMask whatIsGround;
     [Range(20f, 50f)] [SerializeField] private float grappleSpeed;  //the speed at which the player grapples towards a point
+    [Range(0f, 1f)] [SerializeField] private float momentumMaintainingScaler;   //the percentage of momentum maintained when maintaining momentum in the air
 
 
     [Header("-- Dash --")]
@@ -58,6 +59,7 @@ public class Controller : MonoBehaviour
     private float playerGravity;    //player gravity used to save the player's gravity when needs to be changed to 0 temporarily
     private Vector2 lastGroundedPosition;   //the last place the player was on the ground
     private bool maintainMomentum = false;
+    private Color playerColour;
 
     public static PlayerContext context;    //the context to load the player with
 
@@ -73,6 +75,9 @@ public class Controller : MonoBehaviour
     }
 
     private void Start(){
+        //set the player colour
+        playerColour = playerRenderer.color;
+
         isInteracting = false;
 
         //set the player context if there is one
@@ -178,7 +183,7 @@ public class Controller : MonoBehaviour
 
         //if the player is in the air and not moving but was moving
         if(!grounded && momentum == 0 && maintainMomentum){
-            momentum = 0.8f * transform.localScale.x;   //maintain some momentum
+            momentum = momentumMaintainingScaler * transform.localScale.x;   //maintain some momentum
         }
 
         //move the player if they are grounded or are allowed to move in the air, and they are not at a grapple point
@@ -238,7 +243,6 @@ public class Controller : MonoBehaviour
         }
 
         //change the color of the player's sprite
-        Color playerColour = playerRenderer.color;
         playerRenderer.color = dashColor;
         
         //apply the dash
@@ -282,32 +286,39 @@ public class Controller : MonoBehaviour
         
         isGrappling = true; //the player is now grappling
 
-        //save the gravity scale of the player
-        float playerGravity = playerRigid.gravityScale;
+        if(playerRigid.gravityScale > 0f){
+            //save the gravity scale of the player
+            playerGravity = playerRigid.gravityScale;
+        }
 
         //remove gravity on the player
         playerRigid.gravityScale = 0f;
 
         //grapple to the point
-        playerRigid.velocity = new Vector2(grapplePoint.x - transform.position.x, grapplePoint.y - transform.position.y).normalized * grappleSpeed;
+        playerRigid.velocity = (grapplePoint - (Vector2)transform.position).normalized * grappleSpeed;
 
         //wait until the player reaches the grapple point
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) < 0.1f);
+        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) < 0.4f);
 
         //set the velocity to 0
         playerRigid.velocity = Vector2.zero;
+
+        //set the player position
+        transform.position = grapplePoint;
 
         isGrappling = false;    //player no longer grappling
 
         atGrapplePoint = true;  //player is at a grapple point
 
         //wait until the player is moving away from the grapple point
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) > 1f);
+        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) > 0.2f);
 
-        //return gravity to the player
-        playerRigid.gravityScale = playerGravity;
+        if(atGrapplePoint && !isGrappling){
+            //return gravity to the player
+            playerRigid.gravityScale = playerGravity;
+            atGrapplePoint = false; //player is no longer at the grapple point
+        }
 
-        atGrapplePoint = false; //player is no longer at the grapple point
     }
 
     private bool CheckIfGrounded()

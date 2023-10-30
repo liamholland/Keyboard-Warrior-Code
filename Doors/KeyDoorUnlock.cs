@@ -2,20 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class KeyDoorUnlock : MonoBehaviour
+public class KeyDoorUnlock : Damageable
 {
+    public KeyboardController keyboard; //reference to the keyboard
+
     [SerializeField] private Key doorKey;
     [SerializeField] private OneTimeOpenDoor doorToOpen;
 
-    private void OnTriggerEnter2D(Collider2D other){
-        KeyboardController keyboard = other.gameObject.GetComponent<KeyboardController>();
-
-        if(keyboard != null){
-            foreach(Key key in keyboard.keys){
-                if(key.keyName == doorKey.keyName){
-                    doorToOpen.Open();
-                    break;
-                }
+    public override void TakeDamage(int damage)
+    {
+        //check if the keyboard has the key
+        foreach(Key k in keyboard.keys){
+            //if the keynames match, unlock the door
+            if(k.keyName == doorKey.keyName){
+                doorToOpen.Open();
+                gameObject.SetActive(false);
+                break;
             }
         }
     }

@@ -197,7 +197,7 @@ public class Enemy : MonoBehaviour
             return transform.position;  //something has gone wrong, return the enemy's position
         }
         else{
-            return new Vector2(toPoint.x, transform.position.y);
+            return toPoint;
         }
     }
 
@@ -288,7 +288,7 @@ public class Enemy : MonoBehaviour
         {
             while(true){
                 //set the current target to the point or a temporary point to avoid obstacles
-                currentTarget = getClose ? FindPathToTarget(point) : point;
+                currentTarget = FindPathToTarget(point);
 
                 //if the pathfinding returned a temporary point, travel to that point and try again
                 if(Equals(point, currentTarget)){
