@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Collectible : MonoBehaviour, IObject
 {
-    public string Instructions => "Press E to Make Your Disk Floppy";
+    public string Instructions => "Press E to Collect";
 
     public bool ShowInstructions => true;
 

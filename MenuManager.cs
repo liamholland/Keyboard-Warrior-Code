@@ -23,6 +23,10 @@ public class MenuManager : MonoBehaviour
     /// Load the first level of the game
     /// </summary>
     public void LoadLevelOne(){
+        PlayerContext.Reset();  //reset the player context
+
+        PlayerContext.startTime = Time.time;    //start the timer
+
         StartCoroutine(LoadLevelTransition("Level1"));
     }
 
@@ -34,8 +38,6 @@ public class MenuManager : MonoBehaviour
         sceneTransitionAnimator.SetBool("LoadingScene", true);
         
         yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen"));
-
-        PlayerContext.startTime = Time.time;    //start the timer
 
         SceneManager.LoadScene(levelName);
     }

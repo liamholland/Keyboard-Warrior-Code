@@ -9,6 +9,7 @@ public class CloseResultsUI : MonoBehaviour
     public TextMeshProUGUI timeText;
     public TextMeshProUGUI collectiblesText;
     public TextMeshProUGUI enemiesKilledText;
+    public TextMeshProUGUI numDeathsText;
 
     public void Close(){
         UIAnimator.SetBool("computing", false);
@@ -19,6 +20,7 @@ public class CloseResultsUI : MonoBehaviour
             timeText.text = "Time: " + (Time.time - PlayerContext.startTime);
             collectiblesText.text = "Found: " + PlayerContext.numCollectiblesFound + " / 6";
             enemiesKilledText.text = "Enemies Killed: " + PlayerContext.enemiesKilled;
+            numDeathsText.text = "No. of Deaths: " + PlayerContext.numDeaths;
         }
     }
 }

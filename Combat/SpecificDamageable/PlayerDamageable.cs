@@ -41,6 +41,9 @@ public class PlayerDamageable : Damageable
         if(health <= 0){
             Controller.isInteracting = true;
 
+            //add the death to the context
+            PlayerContext.numDeaths++;
+
             playerAnimator.SetBool("dead", true);
         }
     }

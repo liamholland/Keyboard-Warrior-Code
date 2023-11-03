@@ -6,8 +6,6 @@ using UnityEngine;
 public class Boss1 : Enemy
 {   
     [Header("-- Boss Attack Pool --")]
-    public Attack baseAttack;   //the basic boss attack
-    [SerializeField] private int defaultBasicAttackCost;
     public Attack summonColumns;    //the boss goes to the center of the arena and summons columns
     [SerializeField] private int defaultColumnsCost;
     public Attack throwCableAttack; //the boss grabs a cable and throws it at the player
@@ -30,8 +28,8 @@ public class Boss1 : Enemy
         attacks = new List<Attack>();
         
         //set the costs of the attacks
-        baseAttack.AttackCost = defaultBasicAttackCost;
-        attacks.Add(baseAttack);
+        //base attack is not really part of the attack pool
+        mainAttack.AttackCost = 0;
 
         summonColumns.AttackCost = defaultColumnsCost;
         attacks.Add(summonColumns);
@@ -49,7 +47,7 @@ public class Boss1 : Enemy
     //override of enemy class
     public override void ChooseAttack()
     {
-        Attack attackToPerform = baseAttack;
+        Attack attackToPerform = mainAttack;
 
         if(Physics2D.OverlapCircle(transform.position, 50f, whatIsCable) == null){
             attacks.Remove(throwCableAttack);   //cannot do this attack when there are no cables
@@ -58,7 +56,7 @@ public class Boss1 : Enemy
         //choose the cheapest attack
         foreach(Attack attack in attacks){
             //if the attack is cheaper and the boss can afford it
-            if(attack.AttackCost < attackToPerform.AttackCost){
+            if((attack.AttackCost < attackToPerform.AttackCost || attackToPerform.AttackCost == 0) && attack.AttackCost <= attackTokens){
                 attackToPerform = attack;
             }
         }

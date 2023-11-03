@@ -24,6 +24,7 @@ public class PlayerContext : ScriptableObject
     public static float startTime = 0f;
     public static int numCollectiblesFound = 0;
     public static int enemiesKilled = 0;
+    public static int numDeaths = 0;
     public static List<string> openDoors = new List<string>();
     public static List<string> decodedComputers = new List<string>();
     public static List<string> npcsFinishedInScenes = new List<string>();
@@ -209,5 +210,25 @@ public class PlayerContext : ScriptableObject
         context.keys = keyboard.keys;
 
         return context;
+    }
+
+    /// <summary>
+    /// Resets the player context for new games
+    /// </summary>
+    public static void Reset(){
+        Controller.context = null;
+
+        //reset all static variables
+        startTime = 0f;
+        numCollectiblesFound = 0;
+        enemiesKilled = 0;
+        numDeaths = 0;
+        openDoors = new List<string>();
+        decodedComputers = new List<string>();
+        npcsFinishedInScenes = new List<string>();
+        conversationsToMakeAvailable = new List<string>();
+        conversationsToMakeUnavailable = new List<string>();
+        levelUpsCollected = new List<string>();
+        collectiblesFound = new List<string>();
     }
 }
