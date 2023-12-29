@@ -23,10 +23,15 @@ public class ShootProjectile : Attack
         //set the speed
         shotProjectile.GetComponent<Rigidbody2D>().velocity = new Vector2(transform.localScale.x * projectileSpeed, 0f);
         
-        //set the damage
-        shotProjectile.GetComponent<Projectile>().damage = AttackDamage;
+        //get the projectile component
+        Projectile projectileComponent = shotProjectile.GetComponent<Projectile>();
 
-        //set the destroy time
-        shotProjectile.GetComponent<Projectile>().destroyTime = 5f;
+        if(projectileComponent != null){
+            //set the damage
+            projectileComponent.damage = AttackDamage;
+
+            //set the destroy time
+            projectileComponent.destroyTime = 5f;
+        }
     }
 }

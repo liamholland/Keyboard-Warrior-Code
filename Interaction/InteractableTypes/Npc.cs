@@ -1,6 +1,5 @@
 ﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Npc : MonoBehaviour, IObject
 {
@@ -14,6 +13,7 @@ public class Npc : MonoBehaviour, IObject
     private Conversation currentConvo;
     private bool isTalking = false;
 
+    //public accessor for isTalking
     public bool IsTalking {
         get => isTalking;
         set {
@@ -60,7 +60,7 @@ public class Npc : MonoBehaviour, IObject
 
     public bool ShakeCameraOnInteract => !isTalking;
 
-    //called once for each interaction
+    //called once for each interaction by the player
     public void Do()
     {   
         //if the npc is talking

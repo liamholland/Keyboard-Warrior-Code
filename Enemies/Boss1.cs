@@ -19,14 +19,14 @@ public class Boss1 : Enemy
     public string bossName;
 
     private int attackTokens = 0;   //boss needs a certain number of tokens to do different attacks
-    private List<Attack> attacks;   //list of all the bosses attacks
+    private List<Attack> attacks = new List<Attack>();   //list of all the bosses attacks
 
+    //delay object
+    private static WaitForSeconds oneSecondDelay = new WaitForSeconds(1f);
 
     private void Start(){
         bossNameText.text = bossName;
 
-        attacks = new List<Attack>();
-        
         //set the costs of the attacks
         //base attack is not really part of the attack pool
         mainAttack.AttackCost = 0;
@@ -74,7 +74,7 @@ public class Boss1 : Enemy
         while(true){
             attackTokens++;
 
-            yield return new WaitForSeconds(1f);
+            yield return oneSecondDelay;
         }
     }
 }

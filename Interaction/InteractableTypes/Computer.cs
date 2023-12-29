@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Computer : MonoBehaviour, IObject
 {
@@ -30,6 +28,10 @@ public class Computer : MonoBehaviour, IObject
     private bool playerTyping = false;    //used to disable interactions when typing
     private string codedChars = "!@#*&10";  //the coded characters
     public bool decoded = false;   //has the computer been decoded
+
+    //delay objects
+    private static WaitForSeconds sevenTenthsOfSecond = new WaitForSeconds(0.7f);
+    private static WaitForSeconds fiveHundredsOfSecond = new WaitForSeconds(0.05f);
 
     void Start()
     {
@@ -99,7 +101,7 @@ public class Computer : MonoBehaviour, IObject
         inputField.textComponent.color = Color.black;
         inputField.text = "";
 
-        AddEventListeners();    //add event listeners
+        AddEventListeners();
 
         //display the required level
         levelRequiredText.text = keyboard.FormatLevel(levelRequired) + " Required";
@@ -114,7 +116,8 @@ public class Computer : MonoBehaviour, IObject
         Controller.isInteracting = true;
     }
 
-    //method to add the relevent event listeners of this computer and remove all others
+    //method to add the relevant event listeners of this computer and remove all others
+    //necessary to stop other computer instances checking for correct passwords and the like
     private void AddEventListeners(){
         inputField.onSelect.RemoveAllListeners();
         inputField.onSelect.AddListener(delegate { DisableInteract(); });
@@ -142,7 +145,7 @@ public class Computer : MonoBehaviour, IObject
 
             passCodeLabel.text = codedPassCode; //set the text
 
-            yield return new WaitForSeconds(0.7f);  //wait then repeat
+            yield return sevenTenthsOfSecond;  //wait then repeat
         }
 
         //decode the passcode
@@ -173,7 +176,7 @@ public class Computer : MonoBehaviour, IObject
                 //set the text of the passcode
                 passCodeLabel.text = decodedPassCode + codedPassCode;
 
-                yield return new WaitForSeconds(0.05f);
+                yield return fiveHundredsOfSecond;
             }
         }
 

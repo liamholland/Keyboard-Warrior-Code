@@ -162,11 +162,8 @@ public class PlayerContext : ScriptableObject
                 npc.SetActive(false);  //remove it from the scene
             }
             else{
-                //otherwise get its npc component
-                Npc npcComponent = npc.GetComponent<Npc>();
-                
-                //for each conversation it has, apply the required availability
-                foreach(Conversation c in npcComponent.conversations){
+                //otherwise, for each conversation it has, apply the required availability
+                foreach(Conversation c in npc.GetComponent<Npc>().conversations){
                     if(conversationsToMakeAvailable.Contains(c.name)){
                         c.IsAvailable = true;
                     }
@@ -223,12 +220,12 @@ public class PlayerContext : ScriptableObject
         numCollectiblesFound = 0;
         enemiesKilled = 0;
         numDeaths = 0;
-        openDoors = new List<string>();
-        decodedComputers = new List<string>();
-        npcsFinishedInScenes = new List<string>();
-        conversationsToMakeAvailable = new List<string>();
-        conversationsToMakeUnavailable = new List<string>();
-        levelUpsCollected = new List<string>();
-        collectiblesFound = new List<string>();
+        openDoors.Clear();
+        decodedComputers.Clear();
+        npcsFinishedInScenes.Clear();
+        conversationsToMakeAvailable.Clear();
+        conversationsToMakeUnavailable.Clear();
+        levelUpsCollected.Clear();
+        collectiblesFound.Clear();
     }
 }

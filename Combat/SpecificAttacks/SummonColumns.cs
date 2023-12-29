@@ -10,6 +10,9 @@ public class SummonColumns : Attack
 
     private List<GameObject> columnMarkers = new List<GameObject>();
 
+    //delay object
+    private static WaitForSeconds oneSecondDelay = new WaitForSeconds(1f);
+
     public override void WindUpAnimation()
     {
         StartCoroutine(PrepareColumns());
@@ -23,7 +26,7 @@ public class SummonColumns : Attack
             Destroy(marker);
         }
 
-        columnMarkers = new List<GameObject>();   //reset the list
+        columnMarkers.Clear();   //reset the list
     }
 
     //wind up
@@ -44,7 +47,7 @@ public class SummonColumns : Attack
             columnMarkers.Add(Instantiate(columnMarker, new Vector3(transform.position.x - (26f / 2f) + (i * (26f / numColumns)), 2f, 0f), Quaternion.identity));
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return oneSecondDelay;
 
         animator.SetBool(attackAnimationCondition, true);
     }

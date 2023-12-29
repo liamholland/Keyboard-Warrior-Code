@@ -31,7 +31,7 @@ public class Cable : MonoBehaviour
             hitTarget = true;
             StartCoroutine(RestrictPlayer());
         }
-        else if(((1 << other.gameObject.layer) & whatDestroysCable) != 0){  //if something that destroys the cable hits it
+        else if(((1 << other.gameObject.layer) & whatDestroysCable) != 0){  //if something that destroys the cable hits it; faster way of checking every value of the layermask against each layer
             //cable missed
             Destroy(gameObject);
         }

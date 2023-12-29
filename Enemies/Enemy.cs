@@ -47,15 +47,13 @@ public class Enemy : MonoBehaviour
         PointTowardsTarget();
         //move the enemy towards a target
         transform.position = Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime);
-        // if(gameObject.name.Equals("FlyingEnemy6") && isAttacking){
-        //     Debug.Log(Vector2.MoveTowards(transform.position, currentTarget, currentMoveSpeed * Time.deltaTime));
-        // }
     }
 
     void FixedUpdate()
     {
         if (isHostile)
         {
+            //if there is a running passive coroutine, stop it
             if(runningPassive != null) StopCoroutine(runningPassive);
 
             if(!isAttacking && TargetWithinAttackRange(player.transform.position)){
@@ -74,6 +72,7 @@ public class Enemy : MonoBehaviour
             }
 
             if(!isAttacking || isCooldown){
+                //use the correct pathfinding algorithm based on whether the enemy should get close to attack
                 currentTarget = getClose ? FindPathToTarget(player.transform.position) : FindPathAwayFromTarget(player.transform.position);
             }
         }
@@ -91,18 +90,15 @@ public class Enemy : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D other){
-        if(other.gameObject.layer == LayerMask.NameToLayer("Player") ||
-            other.gameObject.layer == LayerMask.NameToLayer("keyboard")){
-            //stop the passive coroutine
-            StopCoroutine(Passive());
-            passiveMoveRoutineActive = false;
+        if(other.gameObject.layer == LayerMask.NameToLayer("Player") || other.gameObject.layer == LayerMask.NameToLayer("keyboard")){
+            passiveMoveRoutineActive = false;   //stop the passive coroutine
 
             isHostile = true;   //the enemy is hostile
         }
     }
 
     //path finding for enemies which can only move left and right on the ground
-    private Vector2 FindPathAwayFromTarget(Vector2 toPoint){
+    protected virtual Vector2 FindPathAwayFromTarget(Vector2 toPoint){
         //find a point an acceptable distance from the target (greater than the attack range)
 
         if(TargetWithinAttackRange(toPoint)){
@@ -148,7 +144,7 @@ public class Enemy : MonoBehaviour
 
 
     //path finding for 2D, flying enemies
-    private Vector2 FindPathToTarget(Vector2 toPoint)
+    protected virtual Vector2 FindPathToTarget(Vector2 toPoint)
     {
         if(canMoveIn2D){
             //check if there is ground in the way

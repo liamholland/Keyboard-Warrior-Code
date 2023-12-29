@@ -11,12 +11,15 @@ public class JumpToServer : Attack
     public GameObject enemyToSpawn; //the enemy the boss will spawn
     public GameObject player;   //reference to the player for the enemy spawn
 
-    private List<GameObject> enemiesSpawned;   //list of the spawned enemies
+    private List<GameObject> enemiesSpawned = new List<GameObject>();   //list of the spawned enemies
     private float bossGravity;
+
+    //delay objects
+    private static WaitForSeconds oneSecondDelay = new WaitForSeconds(1f);
 
     public override void DoAttack(Collider2D colliderToDamage)
     {   
-        enemiesSpawned = new List<GameObject>();
+        enemiesSpawned.Clear(); //empty the list
 
         //spawn 3 enenmies
         StartCoroutine(SpawnEnemies());
@@ -51,7 +54,7 @@ public class JumpToServer : Attack
         int numMinions;
         
         do{
-            yield return new WaitForSeconds(1f);
+            yield return oneSecondDelay;
 
             numMinions = 0;
 

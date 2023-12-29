@@ -27,9 +27,6 @@ public class InteractionAbility : MonoBehaviour
 
     void Update()
     {
-        //search for interactables each frame
-        closestInteractable = GetClosestInteractable();
-
         //if the player is trying to interact, call the interact function on the nearest interactable
         if (closestInteractable != null){
             IObject interactable = closestInteractable.GetComponent<IObject>();
@@ -77,6 +74,11 @@ public class InteractionAbility : MonoBehaviour
         
         //update the show instructions
         instructionsAnimator.SetBool("showInstructions", closestInteractable == null ? false : closestInteractable.GetComponent<IObject>().ShowInstructions);
+    }
+
+    private void FixedUpdate(){
+        //the closest interactable can only change when the physics engine update the position of objects
+        closestInteractable = GetClosestInteractable();
     }
 
     //goes through each of the interactables and returns the closest one

@@ -116,20 +116,16 @@ public class Controller : MonoBehaviour
             keyboardController.KeyboardAvailable &&
             !playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")){
             
-            Attack attack;  //reference to the attack to use
-
             //check the attack to use
             if(Input.GetAxisRaw("Vertical") > 0){
-                attack = upAttack;
+                Attack(upAttack);
             }
             else if(Input.GetAxisRaw("Vertical") < 0){
-                attack = downAttack;
+                Attack(downAttack);
             }
             else{   //defaults to a side attack
-                attack = sideAttack;
+                Attack(sideAttack);
             }
-            
-            Attack(attack);
         }
         //when the player performs a ranged attack / grapple
         else if(Input.GetButtonDown("ThrowGrapple") && !keyboardController.IsThrown && keyboardController.longCableUnlocked){
@@ -282,7 +278,7 @@ public class Controller : MonoBehaviour
     /// <returns></returns>
     public IEnumerator GrappleToPoint(Vector2 grapplePoint){        
         //wait to finish the dash coroutine before starting the grapple one
-        if(isDashing) yield return new WaitUntil(() => !isDashing);
+        while(!isDashing) yield return null;
         
         isGrappling = true; //the player is now grappling
 

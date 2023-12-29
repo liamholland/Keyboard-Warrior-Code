@@ -50,6 +50,7 @@ public class KeyboardController : MonoBehaviour
     private SpriteRenderer keyboardRenderer;    //reference to the keyboard's renderer
     private BoxCollider2D keyboardCollider; //reference to the keyboard's collider
     private Vector2 target; //the target position the keyboard is heading for
+    private Animator playerAnimator;    //reference to the player animator for rebinding animations
     private bool thrown = false;    //has the keyboard been thrown
     private bool hooked = false;    //has the keyboard been hooked to a grapple point
 
@@ -75,6 +76,9 @@ public class KeyboardController : MonoBehaviour
         keyboardCollider = gameObject.GetComponent<BoxCollider2D>();
         keyboardCollider.enabled = available;
 
+        //get a reference to the player animator
+        playerAnimator = player.GetComponent<Animator>();
+
         KeyboardAvailable = available;  //can set the availability of the keyboard based on the inspector value at the start of the game
 
         Level = level;  //set the level which also updates the UI
@@ -91,7 +95,7 @@ public class KeyboardController : MonoBehaviour
                     thrown = false; //keyboard is no longer thrown
                     hooked = false; //the keyboard is unhooked because the player has reached it
                     transform.parent = player.transform;  //keyboard's position is affected by the player
-                    player.GetComponent<Animator>().Rebind();
+                    playerAnimator.Rebind();   //animations will stop working without this call
                 }
                 else if(!hooked){
                     target = startPosition; //otherwise set the target to the start position
@@ -115,7 +119,7 @@ public class KeyboardController : MonoBehaviour
     /// level=4 -> "C#++"
     /// </summary>
     /// <param name="level">The level as an integer</param>
-    /// <returns></returns>
+    /// <returns>A string representation of the level</returns>
     public string FormatLevel(int level){
         if(level < 1) return " ";    //there is no format for levels less than 1
         
@@ -152,7 +156,7 @@ public class KeyboardController : MonoBehaviour
         
         transform.parent = null;   //stop the position of the keyboard being affected by the player
 
-        player.GetComponent<Animator>().Rebind();   //prevent the keyboard from being affected by animations
+        playerAnimator.Rebind();   //prevent the keyboard from being affected by animations
 
         transform.position = currPos;
 
@@ -184,7 +188,7 @@ public class KeyboardController : MonoBehaviour
         
         transform.parent = null;   //stop the position of the keyboard being affected by the player
 
-        player.GetComponent<Animator>().Rebind();   //prevent the keyboard from being affected by animations
+        playerAnimator.Rebind();   //prevent the keyboard from being affected by animations
 
         transform.position = currPos;
 

@@ -15,6 +15,8 @@ public class PlayerDamageable : Damageable
     private int fullHealth; //the health the player has at max health
     private Color playerColour;  //the colour of the player
 
+    //delay object
+    private static WaitForSeconds oneTenthSecondDelay = new WaitForSeconds(0.1f);
 
     private void Start(){
         playerAnimator = gameObject.GetComponent<Animator>();
@@ -103,11 +105,11 @@ public class PlayerDamageable : Damageable
 
             playerRenderer.color = new Color(0, 0, 0, 1);
 
-            yield return new WaitForSeconds(0.1f);
+            yield return oneTenthSecondDelay;
 
             playerRenderer.color = playerColour;
 
-            yield return new WaitForSeconds(0.1f);
+            yield return oneTenthSecondDelay;
 
             elapsedTime += Time.fixedDeltaTime;
         }
