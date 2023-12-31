@@ -34,7 +34,6 @@ public class NotificationManager : MonoBehaviour
 
     private void Awake(){
         //update the notification manager when the scene starts
-        Debug.Log("Reset Notification Manager Instance");
         manager = this;
     }
 

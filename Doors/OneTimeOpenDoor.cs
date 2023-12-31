@@ -7,6 +7,7 @@ public class OneTimeOpenDoor : MonoBehaviour, IDoor
 {
     [SerializeField] private Animator doorAnimator; //the animator for the door
     [SerializeField] private bool hideOnOpen = true;   //set the door to inactive upon opening
+    [SerializeField] private AudioSource openSound; //sound that plays when the door opens
 
     public bool IsOpen => doorAnimator.GetCurrentAnimatorStateInfo(0).IsName("Open");
 
@@ -25,6 +26,8 @@ public class OneTimeOpenDoor : MonoBehaviour, IDoor
     {
         //animate the door opening
         doorAnimator.SetBool("Unlocked", true);
+
+        openSound.Play();
 
         //add it to the player context
         PlayerContext.AddDoorToContext(gameObject);

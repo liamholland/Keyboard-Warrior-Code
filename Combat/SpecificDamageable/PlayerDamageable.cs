@@ -8,10 +8,13 @@ public class PlayerDamageable : Damageable
 {
     public TextMeshProUGUI healthBarText;   //the text field that displays the health
     [SerializeField] private float iFrameTime;  //the amount of time the player is invulnerable for after taking damage
+    [SerializeField] private AudioSource damageSoundEffect;
+    [SerializeField] private AudioSource deathSoundEffect;
 
     private Animator playerAnimator;   //reference to the player animator
     private SpriteRenderer playerRenderer;  //reference to the player's sprite renderer
     private bool invulnerable = false;   //is the player invulnerable
+    private bool dead = false;
     private int fullHealth; //the health the player has at max health
     private Color playerColour;  //the colour of the player
 
@@ -33,20 +36,27 @@ public class PlayerDamageable : Damageable
     //when the player takes damage
     public override void TakeDamage(int damage)
     {
+        if(dead) return;
+
         //if can take damage
         if(!invulnerable){
             health -= damage;   //take damage
+            damageSoundEffect.Play();
             RefreshHealthBar();
             StartCoroutine(Invulnerable());
         }
 
         if(health <= 0){
+            dead = true;
+
             Controller.isInteracting = true;
 
             //add the death to the context
             PlayerContext.numDeaths++;
 
             playerAnimator.SetBool("dead", true);
+
+            deathSoundEffect.Play();
         }
     }
 

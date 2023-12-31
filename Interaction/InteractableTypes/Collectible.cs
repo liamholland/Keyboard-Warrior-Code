@@ -14,11 +14,15 @@ public class Collectible : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    [SerializeField] private Notification collectibleNotification;
+
     public void Do()
     {
         PlayerContext.numCollectiblesFound++;   //increment the number of collectibles found
 
         PlayerContext.AddCollectibleToContext(gameObject);  //add the collectible to the context
+
+        NotificationManager.Manager.ShowPopUpNotification(collectibleNotification);
 
         gameObject.SetActive(false);    //destroy the collectible
     }

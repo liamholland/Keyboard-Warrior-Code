@@ -7,7 +7,8 @@ public class Npc : MonoBehaviour, IObject
     public Conversation[] conversations;    //a list of conversation the npc can have
     public TextMeshProUGUI dialougeBox;
     public TextMeshProUGUI speakerName;
-    public Animator dialogueBoxAnimator;
+    [SerializeField] private Animator dialogueBoxAnimator;
+    [SerializeField] private AudioSource talkingSound;  //the sound played when talking
 
     private int currentLineIndex;
     private Conversation currentConvo;
@@ -71,6 +72,8 @@ public class Npc : MonoBehaviour, IObject
         }
         else    //start a conversation
         {
+            talkingSound.Play();
+
             currentLineIndex = 0;   //set index to first line
 
             //for each conversation

@@ -14,6 +14,7 @@ public class Computer : MonoBehaviour, IObject
     [SerializeField] private TextMeshProUGUI passCodeLabel; //the label that displays the code for the computer
     [SerializeField] private TextMeshProUGUI levelRequiredText; //label to display the required level for this computer
     [SerializeField] private TextMeshProUGUI protocolText;  //label to give the player a clue as to what this computer does
+    [SerializeField] private AudioSource computerSound; //background noise for the computer
 
     public string Instructions => "Press E to Use Computer";
 
@@ -51,6 +52,8 @@ public class Computer : MonoBehaviour, IObject
         //if the interaction with the computer is ending
         if (computerUI.GetCurrentAnimatorStateInfo(0).IsName("hide"))
         {
+            computerSound.Stop();
+
             //the player is not interactong with the computer
             Controller.isInteracting = false;
         }
@@ -111,6 +114,8 @@ public class Computer : MonoBehaviour, IObject
 
         //if computing = true (in the computer UI), set it to false and vice versa
         computerUI.SetBool("computing", !computerUI.GetBool("computing"));
+
+        computerSound.Play();
 
         //the player is interacting with the computer
         Controller.isInteracting = true;

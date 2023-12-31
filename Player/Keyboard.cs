@@ -59,7 +59,7 @@ public class KeyboardController : MonoBehaviour
     public int Level {
         get => level;
         set{
-            string newLevel = FormatLevel(level);
+            string newLevel = FormatLevel(value);
             currentLevelUI.text = newLevel;   //update the level ui
 
             //update the player context (save the game)

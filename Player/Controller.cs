@@ -39,6 +39,8 @@ public class Controller : MonoBehaviour
     [SerializeField] private Attack downAttack;
     [SerializeField] private float attackShakeSpeed;
 
+    [Header("-- Sound --")]
+    [SerializeField] private AudioSource walkSoundEffect;   //source for the walking sound effect
 
     [Header("-- Other --")]
     public KeyboardController keyboardController; //reference to the keyboard controller
@@ -53,6 +55,7 @@ public class Controller : MonoBehaviour
     private bool jumpAvailable = true;
     private bool dashAvailable = true;
     private bool isDashing = false;
+    private bool grounded = false;
     private float lastGroundedAt = -1f; //essentially a timer for how long the player has been in the air
     private bool atGrapplePoint = false;    //is the player hooked to a grapple point
     private bool isGrappling = false;   //is the player currently grappling
@@ -145,6 +148,8 @@ public class Controller : MonoBehaviour
 
     void FixedUpdate()
     {
+        grounded = CheckIfGrounded();  //check if the player is grounded
+
         //if the player fell off the map
         if(transform.position.y < deathZoneY){
             transform.position = lastGroundedPosition;  //put the player back to where they were
@@ -161,8 +166,6 @@ public class Controller : MonoBehaviour
         //dont move if the player is grappling or dashing or interacting or a full screen notification is being displayed
         if(isDashing || isGrappling || isInteracting || NotificationManager.FullNotifActive) { return; }
 
-        bool grounded = CheckIfGrounded();  //check if the player is grounded
-
         //if the player is grounded
         if(grounded){
             lastGroundedPosition = transform.position; //save the place where the player was last grounded
@@ -174,6 +177,13 @@ public class Controller : MonoBehaviour
         //if the player is in the air and moving
         if(!grounded && momentum != 0){
             maintainMomentum = true;    //start maintaining momentum
+        }
+
+        if(grounded && momentum != 0 && !walkSoundEffect.isPlaying){
+            walkSoundEffect.Play();
+        }
+        else if(!grounded || momentum == 0){
+            walkSoundEffect.Stop();
         }
 
         //if the player is in the air and not moving but was moving
