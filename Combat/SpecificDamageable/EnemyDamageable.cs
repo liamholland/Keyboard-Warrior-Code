@@ -11,8 +11,9 @@ public class EnemyDamageable : Damageable
     [Range(0f, 0.5f)] [SerializeField] private float damageFlashTime;   //amount of time the enemy flashes for damage
     [SerializeField] private Color damageFlashColor;  //the color that the enemy flashes when it takes damage
     [SerializeField] private Conversation[] conversationsToMakeAvailableOnDeath;    //the conversations made available upon defeat of the enemy
-    [SerializeField] private AudioSource[] deathSounds; //selection of sounds to play on death
-    [SerializeField] private AudioSource takeDamageSound;   //sound made when taking damage
+    [SerializeField] protected AudioSource[] deathSounds; //selection of sounds to play on death
+    [SerializeField] protected AudioSource takeDamageSound;   //sound made when taking damage
+    [SerializeField] protected AudioSource enemySoundToStop;    //the running enemy sound that i might want to stop when the enemy dies
 
     //what the enemy does when it takes damage
     public override void TakeDamage(int damage)
@@ -46,6 +47,10 @@ public class EnemyDamageable : Damageable
 
             //play a random death sound
             deathSounds[Random.Range(0, deathSounds.Length)].Play();
+
+            if(enemySoundToStop != null){
+                enemySoundToStop.Stop();
+            }
 
             //make all conversations available
             foreach(Conversation c in conversationsToMakeAvailableOnDeath){

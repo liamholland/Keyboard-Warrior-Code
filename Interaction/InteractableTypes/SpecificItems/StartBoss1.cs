@@ -26,6 +26,8 @@ public class StartBoss1 : MonoBehaviour, IObject
     [SerializeField] private GameObject[] grabbableCableObjects;
     [SerializeField] private BossDoor bossDoor;
     [SerializeField] private Enemy boss;
+    [SerializeField] private AudioSource bossMusic;
+    [SerializeField] private SpriteRenderer spriteRenderer;
 
     private void Update(){
         float distToPlayer = 7f - Vector2.Distance(transform.position, player.transform.position);
@@ -50,6 +52,8 @@ public class StartBoss1 : MonoBehaviour, IObject
         boss.isHostile = true;
 
         bossHealthBarAnimator.SetBool("inConversation", true);
+
+        bossMusic.Play();
 
         gameObject.SetActive(false);
     }

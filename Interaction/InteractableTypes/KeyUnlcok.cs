@@ -27,9 +27,7 @@ public class KeyUnlcok : MonoBehaviour, IObject
     {
         keyboard.keys.Add(key); //add the key to the keyboard
 
-        unlockNotification.notificationText = key.keyName + " key added to keyboard";
-
-        NotificationManager.Manager.ShowPopUpNotification(unlockNotification);
+        NotificationManager.Manager.ShowFullNotification(unlockNotification);
 
         gameObject.SetActive(false);    //remove the game object
     }

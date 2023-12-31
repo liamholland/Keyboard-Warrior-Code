@@ -12,6 +12,7 @@ public class Boss1Damageable : EnemyDamageable
     public Rigidbody2D bossRigid;   //the boss rigidbody
     public Enemy boss;
     [SerializeField] private Notification deathNotification;    //the pop up displayed when the boss dies
+    [SerializeField] private AudioSource bossMusic; //the boss music
 
     [Header("-- Health Bar --")]
     public Animator bossHealthBarAnimator;  //the animator of the health bar
@@ -32,6 +33,8 @@ public class Boss1Damageable : EnemyDamageable
 
         health -= damage;   //reduce health
 
+        takeDamageSound.Play();
+
         //update the health bar
         healthBar.rectTransform.sizeDelta = new Vector2(originalHealthBarX * ((float)health / maxHealth), healthBar.rectTransform.sizeDelta.y);
 
@@ -47,10 +50,14 @@ public class Boss1Damageable : EnemyDamageable
     private IEnumerator Die(){
         bossHealthBarAnimator.SetBool("inConversation", false); //im using the dialogue box animator
 
+        bossMusic.Stop();
+
         boss.EnemyTarget = transform.position;
 
         animator.SetBool("dead", true);
         animator.applyRootMotion = false;
+
+        deathSounds[0].Play();
 
         yield return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName("Escape"));
 

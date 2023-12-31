@@ -20,6 +20,7 @@ public class Boss1 : Enemy
 
     private int attackTokens = 0;   //boss needs a certain number of tokens to do different attacks
     private List<Attack> attacks = new List<Attack>();   //list of all the bosses attacks
+    private List<Attack> affordableAttacks = new List<Attack>();    //temp list used to store the affordable attacks
 
     //delay object
     private static WaitForSeconds oneSecondDelay = new WaitForSeconds(1f);
@@ -53,16 +54,18 @@ public class Boss1 : Enemy
             attacks.Remove(throwCableAttack);   //cannot do this attack when there are no cables
         }
 
-        //choose the cheapest attack
-        foreach(Attack attack in attacks){
-            //if the attack is cheaper and the boss can afford it
-            if((attack.AttackCost < attackToPerform.AttackCost || attackToPerform.AttackCost == 0) && attack.AttackCost <= attackTokens){
-                attackToPerform = attack;
+        affordableAttacks.Clear();
+
+        foreach(Attack a in attacks){
+            if(a.AttackCost <= attackTokens){
+                affordableAttacks.Add(a);
             }
         }
 
-        //double the attack cost of the chosen attack
-        attackToPerform.AttackCost += attackToPerform.AttackCost;
+        if(affordableAttacks.Count > 0){
+            //pick a random affordable attack
+            attackToPerform = affordableAttacks[Random.Range(0, affordableAttacks.Count)];
+        }
 
         attackTokens -= attackToPerform.AttackCost; //subtract the cost from the tokens
 
