@@ -29,7 +29,7 @@ public class LoadScene : MonoBehaviour, IObject
         
         Controller.context = PlayerContext.GenerateNewContext(player, keyboard);   //set the player context
 
-        Controller.context.sceneName = levelToLoad;
+        Controller.context.sceneName = levelToLoad; //overwrite the context scene with the scene the player is going to
 
         //load the scene
         StartCoroutine(player.LoadSceneAnimation(levelToLoad));

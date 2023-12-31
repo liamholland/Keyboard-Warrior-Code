@@ -59,8 +59,6 @@ public class PlayerDamageable : Damageable
 
         Controller.context = PlayerContext.GenerateNewContext(player, keyboard);
 
-        Controller.context.sceneName = SceneManager.GetActiveScene().name;
-
         //reload the current scene
         StartCoroutine(player.LoadSceneAnimation(SceneManager.GetActiveScene().name));
     }

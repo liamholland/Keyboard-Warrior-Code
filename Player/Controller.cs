@@ -135,6 +135,7 @@ public class Controller : MonoBehaviour
             StartCoroutine(keyboardController.RangeAttackWithKeyboard());
         }
         else if(Input.GetKeyDown(KeyCode.Escape)){
+            context = PlayerContext.GenerateNewContext(this, keyboardController);   //save the game
             StartCoroutine(LoadSceneAnimation("MainMenu"));
         }
 
@@ -157,10 +158,8 @@ public class Controller : MonoBehaviour
     //move the player character
     private void Move() 
     {
-        //dont move if the player is grappling or dashing or interacting
-        if(isDashing || isGrappling || isInteracting){
-            return;
-        }
+        //dont move if the player is grappling or dashing or interacting or a full screen notification is being displayed
+        if(isDashing || isGrappling || isInteracting || NotificationManager.FullNotifActive) { return; }
 
         bool grounded = CheckIfGrounded();  //check if the player is grounded
 

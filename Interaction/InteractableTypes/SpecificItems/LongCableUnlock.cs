@@ -15,6 +15,8 @@ public class LongCableUnlock : MonoBehaviour, IObject
     public string CustomKeyCode => "";
 
     public KeyboardController keyboardController;   //reference to the keyboard controller
+    
+    [SerializeField] private Notification unlockNotification;   //the notification to display
 
     private void Start(){
         keyboardController = GameObject.FindGameObjectWithTag("Keyboard").GetComponent<KeyboardController>();
@@ -23,6 +25,8 @@ public class LongCableUnlock : MonoBehaviour, IObject
     public void Do()
     {
         keyboardController.longCableUnlocked = true;    //unlock the long cable
+
+        NotificationManager.Manager.ShowFullNotification(unlockNotification);
 
         gameObject.SetActive(false);    //remove the unlock from the game
     }

@@ -45,6 +45,7 @@ public class KeyboardController : MonoBehaviour
     
     [Header("-- Coding Level --")]
     [SerializeField] private int level = 0;    //the level of the player
+    [SerializeField] private Notification levelUpNotification;  //notification displayed when the player levels up
 
     private Controller playerController;    //reference to the player controller
     private SpriteRenderer keyboardRenderer;    //reference to the keyboard's renderer
@@ -58,8 +59,20 @@ public class KeyboardController : MonoBehaviour
     public int Level {
         get => level;
         set{
+            string newLevel = FormatLevel(level);
+            currentLevelUI.text = newLevel;   //update the level ui
+
+            //update the player context (save the game)
+            Controller.context = PlayerContext.GenerateNewContext(playerController, this);
+
+            //show notification
+            levelUpNotification.notificationText = "New Level: " + newLevel;
+
+            if(NotificationManager.Manager != null && level != value){
+                NotificationManager.Manager.ShowPopUpNotification(levelUpNotification);
+            }
+
             level = value;  //set the value
-            currentLevelUI.text = FormatLevel(level);   //update the level ui
         }
     }
     [SerializeField] private TextMeshProUGUI currentLevelUI;    //reference to the player UI that displays the level
@@ -80,8 +93,6 @@ public class KeyboardController : MonoBehaviour
         playerAnimator = player.GetComponent<Animator>();
 
         KeyboardAvailable = available;  //can set the availability of the keyboard based on the inspector value at the start of the game
-
-        Level = level;  //set the level which also updates the UI
     }
 
     private void Update(){

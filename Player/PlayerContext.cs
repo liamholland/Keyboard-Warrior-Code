@@ -205,6 +205,7 @@ public class PlayerContext : ScriptableObject
         context.longCableUnlocked = keyboard.longCableUnlocked;
         context.level = keyboard.Level;
         context.keys = keyboard.keys;
+        context.sceneName = SceneManager.GetActiveScene().name;
 
         return context;
     }

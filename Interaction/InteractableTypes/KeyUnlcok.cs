@@ -14,6 +14,7 @@ public class KeyUnlcok : MonoBehaviour, IObject
 
     public string CustomKeyCode => "";
 
+    [SerializeField] private Notification unlockNotification;   //the notification to show on pick up
     [SerializeField] private Key key;
     private KeyboardController keyboard;
 
@@ -25,6 +26,10 @@ public class KeyUnlcok : MonoBehaviour, IObject
     public void Do()
     {
         keyboard.keys.Add(key); //add the key to the keyboard
+
+        unlockNotification.notificationText = key.keyName + " key added to keyboard";
+
+        NotificationManager.Manager.ShowPopUpNotification(unlockNotification);
 
         gameObject.SetActive(false);    //remove the game object
     }

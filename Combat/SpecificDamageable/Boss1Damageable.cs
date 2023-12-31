@@ -11,6 +11,7 @@ public class Boss1Damageable : EnemyDamageable
     public Animator animator;
     public Rigidbody2D bossRigid;   //the boss rigidbody
     public Enemy boss;
+    [SerializeField] private Notification deathNotification;    //the pop up displayed when the boss dies
 
     [Header("-- Health Bar --")]
     public Animator bossHealthBarAnimator;  //the animator of the health bar
@@ -59,6 +60,8 @@ public class Boss1Damageable : EnemyDamageable
 
         Instantiate(longCableUnlock, new Vector2(transform.position.x + 1, transform.position.y), Quaternion.identity);
         Instantiate(keyUnlock, new Vector2(transform.position.x - 1, transform.position.y), Quaternion.identity);
+
+        NotificationManager.Manager.ShowPopUpNotification(deathNotification);
 
         bossRoomDoor.Open();    //open the boss room door
 
