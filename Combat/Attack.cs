@@ -10,6 +10,8 @@ public class Attack : MonoBehaviour
     public string windupState;  //the name of the wind up animation state
     public string windupAnimationCondition; //the name of the condition to change to allow the windup animation to play
     [SerializeField] private float windUpMoveSpeed; //the speed of an enemies windup
+    [SerializeField] protected AudioSource windUpSound;   //the sound used to signpost the attack
+
     [Header("-- Attack --")]
     public bool useAutoAttackAnimation = false;
     public string attackState;  //name of the attack state that contains the animation of this attack
@@ -18,6 +20,7 @@ public class Attack : MonoBehaviour
     [SerializeField] private float attackDamageRange;
     [SerializeField] private int attackDamage;  //the damage the attack does
     [SerializeField] private float attackMoveSpeed; //the speed the enemy moves when attacking
+    [SerializeField] protected AudioSource attackSound;   //the sound played when the attack happens
 
     [Header("-- Cooldown --")]
     [SerializeField] private float attackCoolDown;    //amount of time the enemy must wait for
@@ -47,12 +50,20 @@ public class Attack : MonoBehaviour
         if(useAutoWindUpAnimation){
             animator.SetBool(windupAnimationCondition, true);
         }
+
+        if(windUpSound != null){
+            windUpSound.Play();
+        }
     }
 
     //do the actual attack
     public virtual void DoAttack(Collider2D colliderToDamage){
         if(useAutoAttackAnimation){
             animator.SetBool(attackAnimationCondition, true);
+        }
+
+        if(attackSound != null){
+            attackSound.Play();
         }
         
         //do damage to the player collider

@@ -8,6 +8,8 @@ public class TeleportTargetOnAttack : Attack
 
     public override void DoAttack(Collider2D colliderToDamage)
     {
+        attackSound.Play();
+
         if(colliderToDamage != null){
             //teleport the target to the location
             colliderToDamage.gameObject.transform.position = teleportLocation;

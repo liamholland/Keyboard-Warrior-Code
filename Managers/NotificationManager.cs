@@ -87,7 +87,8 @@ public class NotificationManager : MonoBehaviour
     //coroutine to animate the pop up
     private IEnumerator AnimatePopUp(){
         if(fullNotifActive){
-            yield return new WaitUntil(() => fullNotificationAnimator.GetCurrentAnimatorStateInfo(0).IsName("hiding"));
+            //wait until there the full screen pop up is hiding
+            while(!fullNotificationAnimator.GetCurrentAnimatorStateInfo(0).IsName("hiding")){ yield return null; }
         }
 
         popUpNotificationAnimator.SetBool("notifying", true);
@@ -96,7 +97,8 @@ public class NotificationManager : MonoBehaviour
 
         popUpNotificationAnimator.SetBool("notifying", false);
 
-        yield return new WaitUntil(() => popUpNotificationAnimator.GetCurrentAnimatorStateInfo(0).IsName("hiding"));
+        //wait until the pop up notification currently displaying is finished
+        while(!popUpNotificationAnimator.GetCurrentAnimatorStateInfo(0).IsName("hiding")){ yield return null; }
         
         popUpNotifActive = false;
 

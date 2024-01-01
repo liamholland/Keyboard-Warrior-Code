@@ -46,7 +46,8 @@ public class GrabCable : Attack
     private IEnumerator PrepareGrabCable(GameObject cable){
         boss.EnemyTarget = new Vector2(cable.transform.position.x, transform.position.y);    //set the boss target
 
-        yield return new WaitUntil(() => Mathf.Abs(cable.transform.position.x - transform.position.x) < 1f);
+        //wait until the boss has reached the cable
+        while( Mathf.Abs(cable.transform.position.x - transform.position.x) > 1f) { yield return null; }
 
         animator.SetBool(windupAnimationCondition, true); //do the wind up animation
 

@@ -22,6 +22,8 @@ public class RushAtPlayer : Attack
     {
         animator.SetBool(attackAnimationCondition, true);
 
+        attackSound.Play();
+
         StartCoroutine(DashAttack());
     }
 

@@ -15,6 +15,13 @@ public class EnemyDamageable : Damageable
     [SerializeField] protected AudioSource takeDamageSound;   //sound made when taking damage
     [SerializeField] protected AudioSource enemySoundToStop;    //the running enemy sound that i might want to stop when the enemy dies
 
+    //delay object
+    private WaitForSeconds damageFlashDelay;
+
+    private void Awake(){
+        damageFlashDelay = new WaitForSeconds(damageFlashTime);
+    }
+
     //what the enemy does when it takes damage
     public override void TakeDamage(int damage)
     {
@@ -36,7 +43,7 @@ public class EnemyDamageable : Damageable
         enemyRenderer.color = damageFlashColor;
 
         //delay
-        yield return new WaitForSeconds(damageFlashTime);
+        yield return damageFlashDelay;
 
         //back to the original color
         enemyRenderer.color = enemyColor;

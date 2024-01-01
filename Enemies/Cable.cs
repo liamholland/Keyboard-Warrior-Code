@@ -44,7 +44,8 @@ public class Cable : MonoBehaviour
         cableRenderer.SetPosition(0, (Vector2)transform.position + new Vector2(0.5f, 0.5f));
         cableRenderer.SetPosition(1, (Vector2)transform.position - new Vector2(0.5f, 0.5f));
         
-        yield return new WaitUntil(() => numDashesToFree <= 0);
+        //wait until the player has dashed the required number of times
+        while(numDashesToFree > 0){ yield return null; }
         
         Controller.isInteracting = false;   //free the player
 

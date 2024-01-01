@@ -14,6 +14,9 @@ public class ShootProjectile : Attack
             animator.SetBool(attackAnimationCondition, true);
         }
 
+        windUpSound.Stop(); //specific to this attack; the sound i have is too long
+        attackSound.Play();
+
         //point towards target
         transform.localScale = new Vector2((player.transform.position - transform.position).normalized.x, transform.localScale.y);
 

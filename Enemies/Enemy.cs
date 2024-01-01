@@ -229,7 +229,9 @@ public class Enemy : MonoBehaviour
         attack.WindUpAnimation();   //run the windup animation
 
         //wind up on the enemies attack
-        yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName(attack.attackState != "" ? attack.attackState : "Attack"));
+        while(!enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName(attack.attackState != "" ? attack.attackState : "Attack")){
+            yield return null;
+        }
 
         // Debug.Log("Doing attack");
         //find all the player colliders in range of the enemy after the wind up
@@ -242,7 +244,9 @@ public class Enemy : MonoBehaviour
         attack.DoAttack(colliderInRange);
 
         //wait until the animation for the attack is done
-        yield return new WaitUntil(() => enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle"));
+        while(!enemyAnimator.GetCurrentAnimatorStateInfo(0).IsName("Idle")){
+            yield return null;
+        }
         
         //the enemy is on cooldown
         isCooldown = true;
@@ -291,11 +295,16 @@ public class Enemy : MonoBehaviour
                     break;
                 }
                 else{
+                    //wait until the enemy is within 0.4 units of the point
+                    //wait until object is necessary here as using a regular while loop causes an infinite loop for some reason
+                    //i think it might be due to the fact that WaitUntil is guaranteed to wait at least one frame
+                    //so if you use a while loop and the condition is met, but the pathfinding returns the same point, you are basically stuck in the outer loop
                     yield return new WaitUntil(() => Vector2.Distance(currentTarget, transform.position) < 0.4f);
                 }
             }
 
-            yield return new WaitUntil(() => Vector2.Distance(point, transform.position) < 0.4f);
+            //wait until the enemy is within 0.4 units of the point
+            while(Vector2.Distance(point, transform.position) >= 0.4f) { yield return null; }
         }
 
         //the routine is finished

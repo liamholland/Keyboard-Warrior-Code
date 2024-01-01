@@ -59,11 +59,13 @@ public class Boss1Damageable : EnemyDamageable
 
         deathSounds[0].Play();
 
-        yield return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName("Escape"));
+        //wait until the escape animation is playing
+        while(!animator.GetCurrentAnimatorStateInfo(0).IsName("Escape")){ yield return null; }
 
         bossRigid.gravityScale = 0f;
 
-        yield return new WaitUntil(() => transform.position.y > 30f);
+        //wait until the boss' y position is above 30
+        while(transform.position.y <= 30f){ yield return null; }
 
         Instantiate(longCableUnlock, new Vector2(transform.position.x + 1, transform.position.y), Quaternion.identity);
         Instantiate(keyUnlock, new Vector2(transform.position.x - 1, transform.position.y), Quaternion.identity);

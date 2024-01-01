@@ -37,7 +37,8 @@ public class MenuManager : MonoBehaviour
     private IEnumerator LoadLevelTransition(string levelName){
         sceneTransitionAnimator.SetBool("LoadingScene", true);
         
-        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen"));
+        //wait until the scene transition is on screen
+        while(!sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen")){ yield return null; }
 
         SceneManager.LoadScene(levelName);
     }

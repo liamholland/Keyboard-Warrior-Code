@@ -15,11 +15,14 @@ public class SummonColumns : Attack
 
     public override void WindUpAnimation()
     {
+        windUpSound.Play();
         StartCoroutine(PrepareColumns());
     }
 
     public override void DoAttack(Collider2D colliderToDamage)
     {
+        attackSound.Play();
+
         //spawn columns
         foreach(GameObject marker in columnMarkers){            
             Destroy(Instantiate(column, marker.transform.position, Quaternion.identity), 1f);
@@ -36,7 +39,7 @@ public class SummonColumns : Attack
         enemy.EnemyTarget = arenaCenter;   //set the enemy target to the middle of the arena
 
         //wait until the boss reaches the middle of the arena
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, arenaCenter) < 0.3f);
+        while(Vector2.Distance(transform.position, arenaCenter) > 0.3f){ yield return null; }
 
         animator.SetBool(windupAnimationCondition, true);
 

@@ -34,7 +34,14 @@ public class JumpToServer : Attack
 
     private IEnumerator SpawnEnemies(){
         for(int i = 0; i < 3; i++){
-            yield return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName(attackState));
+            //wait until the attack animation is playing
+            while(!animator.GetCurrentAnimatorStateInfo(0).IsName(attackState)){ yield return null; }
+
+            //play the sound
+            if(attackSound.isPlaying){
+                attackSound.Stop();
+            }
+            attackSound.Play();
 
             GameObject enemySpawn = Instantiate(enemyToSpawn, transform.position, Quaternion.identity);
 
@@ -44,7 +51,8 @@ public class JumpToServer : Attack
 
             enemiesSpawned.Add(enemySpawn); //add it to the list of enemies
 
-            yield return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName(windupState));
+            //wait until the wind up animation is playing
+            while(!animator.GetCurrentAnimatorStateInfo(0).IsName(windupState)){ yield return null; }
 
             animator.SetBool(attackAnimationCondition, true);
         }
@@ -77,7 +85,8 @@ public class JumpToServer : Attack
 
         boss.EnemyTarget = arenaCenter;
 
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, arenaCenter) < 0.3f);
+        //wait until the distance between the boss reaches the center of the arena
+        while(Vector2.Distance(transform.position, arenaCenter) > 0.3f){ yield return null; }
 
         //remove gravity on the boss
         bossGravity = bossRigid.gravityScale;
@@ -91,7 +100,8 @@ public class JumpToServer : Attack
 
         boss.EnemyTarget = serverPosition;  //set the position
 
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, serverPosition) < 0.3f);
+        //wait until the boss has reached the server
+        while(Vector2.Distance(transform.position, serverPosition) > 0.3f){ yield return null; }
 
         boss.EnemyTarget = transform.position;  //stay in place
 

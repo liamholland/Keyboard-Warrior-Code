@@ -66,6 +66,10 @@ public class Controller : MonoBehaviour
 
     public static PlayerContext context;    //the context to load the player with
 
+    //delay objects
+    private WaitForSeconds dashHangTimeDelay;
+    private WaitForSeconds dashCooldownDelay;
+
     private void Awake(){
         //get a reference to the camera controller
         cameraController = Camera.main.GetComponent<CameraController>();
@@ -75,6 +79,10 @@ public class Controller : MonoBehaviour
 
         //get a reference to the rigid body
         playerRigid = GetComponent<Rigidbody2D>();
+
+        //set delay objects
+        dashHangTimeDelay = new WaitForSeconds(dashHangTime);
+        dashCooldownDelay = new WaitForSeconds(dashCoolDown);
     }
 
     private void Start(){
@@ -113,10 +121,12 @@ public class Controller : MonoBehaviour
 
         //keyboard actions
 
-        //if the player is attacking, the keyboard is not thrown and the keyboard is unlocked and the player is not currently in an attack animation
+        //if the player is attacking, the keyboard is not thrown, the keyboard is unlocked, the player is not interacting, a full notification is not showing and the player is not currently in an attack animation
         if (Input.GetButtonDown("Attack") && 
             !keyboardController.IsThrown && 
             keyboardController.KeyboardAvailable &&
+            !isInteracting &&
+            !NotificationManager.FullNotifActive &&
             !playerAnimator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")){
             
             //check the attack to use
@@ -262,7 +272,7 @@ public class Controller : MonoBehaviour
         //hang in the air for a moment
         playerRigid.velocity = Vector2.zero;
 
-        yield return new WaitForSeconds(dashHangTime);
+        yield return dashHangTimeDelay;
 
         //return gravity to normal
         playerRigid.gravityScale = playerGravity;
@@ -271,7 +281,7 @@ public class Controller : MonoBehaviour
         isDashing = false;
         
         //cooldown
-        yield return new WaitForSeconds(dashCoolDown);
+        yield return dashCooldownDelay;
 
         //reset the color of the sprite
         playerRenderer.color = playerColour;
@@ -303,7 +313,7 @@ public class Controller : MonoBehaviour
         playerRigid.velocity = (grapplePoint - (Vector2)transform.position).normalized * grappleSpeed;
 
         //wait until the player reaches the grapple point
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) < 0.4f);
+        while(Vector2.Distance(transform.position, grapplePoint) > 0.4f){ yield return null; }
 
         //set the velocity to 0
         playerRigid.velocity = Vector2.zero;
@@ -316,7 +326,7 @@ public class Controller : MonoBehaviour
         atGrapplePoint = true;  //player is at a grapple point
 
         //wait until the player is moving away from the grapple point
-        yield return new WaitUntil(() => Vector2.Distance(transform.position, grapplePoint) > 0.2f);
+        while(Vector2.Distance(transform.position, grapplePoint) < 0.2f){ yield return null; }
 
         if(atGrapplePoint && !isGrappling){
             //return gravity to the player
@@ -340,7 +350,8 @@ public class Controller : MonoBehaviour
     public IEnumerator LoadSceneAnimation(string sceneName){
         sceneTransitionAnimator.SetBool("LoadingScene", true);
 
-        yield return new WaitUntil(() => sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen"));
+        //wait until the scene transition card is on screen
+        while(!sceneTransitionAnimator.GetCurrentAnimatorStateInfo(0).IsName("OnScreen")){ yield return null; }
 
         SceneManager.LoadScene(sceneName);
     }

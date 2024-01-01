@@ -22,6 +22,9 @@ public class CameraController : MonoBehaviour
     private float shakeSpeed; //speed of the camera when shaking
     private float yOffset;   //the distance the camera is above the player
 
+    //delay object
+    private static WaitUntil shakeCondition;
+
     void Awake(){
         player = GameObject.Find("Player"); //find the player
     }
@@ -148,14 +151,17 @@ public class CameraController : MonoBehaviour
 
         float elapsedTime = 0f;
 
+        //wait until the camera has moved to the current target
+        shakeCondition = new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.1f);
+
         while(elapsedTime < duration){
             target = firstShakePosition;    //set the target of the camera to the first position
 
-            yield return new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.1f);
+            yield return shakeCondition;
 
             target = secondShakePosition;   //set the target to the second shake position
 
-            yield return new WaitUntil(() => Vector2.Distance(target, transform.position) < 0.1f);
+            yield return shakeCondition;
 
             elapsedTime += Time.fixedDeltaTime;
         }
