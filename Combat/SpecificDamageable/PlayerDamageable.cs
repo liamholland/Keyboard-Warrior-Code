@@ -73,14 +73,6 @@ public class PlayerDamageable : Damageable
         StartCoroutine(player.LoadSceneAnimation(SceneManager.GetActiveScene().name));
     }
 
-    /// <summary>
-    /// Load the main menu
-    /// </summary>
-    public void LoadMainMenu(){
-        Controller player = gameObject.GetComponent<Controller>();
-        StartCoroutine(player.LoadSceneAnimation("MainMenu"));
-    }
-
     private void RefreshHealthBar(){
         healthBarText.text = "";    //remove the text
 

@@ -10,6 +10,8 @@ public class CloseResultsUI : MonoBehaviour
     public TextMeshProUGUI collectiblesText;
     public TextMeshProUGUI enemiesKilledText;
     public TextMeshProUGUI numDeathsText;
+    public Controller player;
+    public KeyboardController keyboard;
 
     public void Close(){
         UIAnimator.SetBool("computing", false);
@@ -22,5 +24,13 @@ public class CloseResultsUI : MonoBehaviour
             enemiesKilledText.text = "Enemies Killed: " + PlayerContext.enemiesKilled;
             numDeathsText.text = "No. of Deaths: " + PlayerContext.numDeaths;
         }
+    }
+
+    /// <summary>
+    /// Load the main menu
+    /// </summary>
+    public void LoadMainMenu(){
+        Controller.context = PlayerContext.GenerateNewContext(player, keyboard);
+        StartCoroutine(player.LoadSceneAnimation("MainMenu"));
     }
 }
