@@ -64,7 +64,7 @@ public class EnemyDamageable : Damageable
                 c.IsAvailable = true;
             }
 
-            enemyController.enabled = false;
+            enemyController.StopAllCoroutines();
 
             enemyRigid.mass = 1f;
             enemyRigid.gravityScale = deathGravityScale;

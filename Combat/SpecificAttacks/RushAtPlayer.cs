@@ -33,7 +33,7 @@ public class RushAtPlayer : Attack
         RaycastHit2D scan = Physics2D.Raycast(transform.position, target - (Vector2)transform.position, dashDistance, dashObstacles);
 
         if(scan.collider != null){
-            target = (Vector2)transform.position + ((scan.point - (Vector2)transform.position).normalized * (Vector2.Distance(transform.position, scan.point) - 2f));
+            target = (Vector2)transform.position + ((scan.point - (Vector2)transform.position).normalized * (Vector2.Distance(transform.position, scan.point) - 1f));
         }
 
         enemy.EnemyTarget = target;

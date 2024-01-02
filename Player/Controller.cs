@@ -297,8 +297,8 @@ public class Controller : MonoBehaviour
     /// <returns></returns>
     public IEnumerator GrappleToPoint(Vector2 grapplePoint){        
         //wait to finish the dash coroutine before starting the grapple one
-        while(!isDashing) yield return null;
-        
+        while(isDashing) yield return null;
+
         isGrappling = true; //the player is now grappling
 
         if(playerRigid.gravityScale > 0f){

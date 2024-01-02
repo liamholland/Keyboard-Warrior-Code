@@ -33,8 +33,9 @@ public class NotificationManager : MonoBehaviour
     private static WaitForSeconds fourSecondDelay = new WaitForSeconds(4f);
 
     private void Awake(){
-        //update the notification manager when the scene starts
         manager = this;
+        fullNotifActive = false;
+        popUpNotifActive = false;
     }
 
     /// <summary>
