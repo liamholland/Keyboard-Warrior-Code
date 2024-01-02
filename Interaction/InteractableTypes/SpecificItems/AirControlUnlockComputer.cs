@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class AirControlUnlockComputer : Computer
 {
     public Controller playerController; //reference to the player controller

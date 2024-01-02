@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class LevelOneComputer : Computer
 {
     public OneTimeOpenDoor doorToOpen;    //the door this computer opens
